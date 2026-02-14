@@ -18,7 +18,7 @@ CREATE TABLE zone_geometry (
     zone_geojson LONGTEXT NOT NULL,
     CONSTRAINT fk_zone_geo FOREIGN KEY (location_id)
         REFERENCES dim_zones(location_id)
-) ENGINE InnoDB;
+) ENGINE=InnoDB;
 
 -- Trips table for yellow_tripdata.csv file
 CREATE TABLE fact_trips (
@@ -31,7 +31,7 @@ CREATE TABLE fact_trips (
     pulocation_id INT NOT NULL,
     dolocation_id INT NOT NULL,
     fare_amount DECIMAL(10, 2) NOT NULL,
-    tip_amount DECIMAL(10, 2) NOT NULL,
+    tip_amount DECIMAL(10, 2) DEFAULT 0,
     total_amount DECIMAL(10, 2) NOT NULL,
     -- Derived Columns for Insights
     avg_speed_mph DECIMAL(10, 2),
