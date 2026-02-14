@@ -42,7 +42,11 @@ CREATE TABLE fact_trips (
     is_peak_hour BOOLEAN GENERATED ALWAYS AS (HOUR(pickup_datetime) IN (7, 8, 9, 17, 18, 19)) STORED,
 
     FOREIGN KEY (pulocation_id) REFERENCES dim_zones(location_id),
-    FOREIGN KEY (dolocation_id) REFERENCES dim_zones(location_id)
+    FOREIGN KEY (dolocation_id) REFERENCES dim_zones(location_id),
+
+    CHECK (trip_distance >= 0),
+    CHECK (fare_amount >= 0),
+    CHECK (pickup_datetime < dropoff_datetime)
 ) ENGINE=InnoDB;
 
 -- Add Performance Indexes to help with dashboard lookup
