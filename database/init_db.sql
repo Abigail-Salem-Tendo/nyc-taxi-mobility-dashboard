@@ -38,10 +38,10 @@ CREATE TABLE fact_trips (
     congestion_level VARCHAR(10),
 
     -- values that will be auto generated in mysql
-    trip_duration_min INT GENERATED ALWAYS AS (TIMESTAMPDIFF(MINUTE, pickup_datetime, dropoff_datetime)) STORED,
-    hour_of_day TINYINT GENERATED ALWAYS AS (HOUR(pickup_datetime)) STORED,
-    day_of_week TINYINT GENERATED ALWAYS AS (DAYOFWEEK(pickup_datetime)) STORED,
-    is_peak_hour BOOLEAN GENERATED ALWAYS AS (HOUR(pickup_datetime) IN (7, 8, 9, 17, 18, 19)) STORED,
+    trip_duration_min INT,
+    hour_of_day TINYINT,
+    day_of_week TINYINT,
+    is_peak_hour BOOLEAN,
 
     FOREIGN KEY (pulocation_id) REFERENCES dim_zones(location_id),
     FOREIGN KEY (dolocation_id) REFERENCES dim_zones(location_id),
