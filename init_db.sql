@@ -7,8 +7,10 @@ CREATE TABLE dim_zones (
     location_id INT PRIMARY KEY,
     borough VARCHAR(50),
     zone_name VARCHAR(100),
-    service_zone VARCHAR(50)
-);
+    service_zone VARCHAR(50),
+
+    INDEX idx_borough (borough)
+) ENGINE=InnoDB;
 
 -- Table to reference the taxi_zones shape file
 CREATE TABLE zone_geometry (
@@ -16,7 +18,7 @@ CREATE TABLE zone_geometry (
     zone_geojson LONGTEXT NOT NULL,
     CONSTRAINT fk_zone_geo FOREIGN KEY (location_id)
         REFERENCES dim_zones(location_id)
-);
+) ENGINE InnoDB;
 
 -- Trips table for yellow_tripdata.csv file
 CREATE TABLE fact_trips (
