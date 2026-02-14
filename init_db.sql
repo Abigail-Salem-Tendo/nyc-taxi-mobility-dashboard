@@ -18,26 +18,6 @@ CREATE TABLE zone_geometry (
         REFERENCES dim_zones(location_id)
 );
 
-CREATE TABLE summary_hourly_borough (
-    summary_id INT AUTO_INCREMENT PRIMARY KEY,
-    pickup_hour TINYINT,
-    borough VARCHAR(50),
-    total_trips INT,
-    avg_fare_amount DECIMAL(10, 2),
-    avg_trip_distance DECIMAL(10, 2),
-
-    INDEX (pickup_hour),
-    INDEX (borough)
-);
-
-CREATE TABLE summary_congestion_stats (
-    congestion_level VARCHAR(10),
-    borough VARCHAR(50),
-    trip_count INT,
-    avg_speed DECIMAL(10, 2),
-
-    PRIMARY KEY (congestion_level, borough)
-);
 -- Table 3: reference for yellow_tripdata.csv file
 CREATE TABLE fact_trips (
     trip_id INT AUTO_INCREMENT PRIMARY KEY,
