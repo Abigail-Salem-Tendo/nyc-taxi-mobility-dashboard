@@ -2,7 +2,7 @@
 CREATE DATABASE IF NOT EXISTS mobility_db;
 USE mobility_db;
 
--- Table 1: Reference for Zone Names
+-- Table to store values from taxi zones csv file
 CREATE TABLE dim_zones (
     location_id INT PRIMARY KEY,
     borough VARCHAR(50),
@@ -10,7 +10,7 @@ CREATE TABLE dim_zones (
     service_zone VARCHAR(50)
 );
 
--- Table 2: Reference for Spatial Shapes
+-- Table to reference the taxi_zones shape file
 CREATE TABLE zone_geometry (
     location_id INT PRIMARY KEY,
     zone_geojson LONGTEXT NOT NULL,
@@ -18,7 +18,7 @@ CREATE TABLE zone_geometry (
         REFERENCES dim_zones(location_id)
 );
 
--- Table 3: reference for yellow_tripdata.csv file
+-- Trips table for yellow_tripdata.csv file
 CREATE TABLE fact_trips (
     trip_id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_id TINYINT,
@@ -57,3 +57,15 @@ CREATE INDEX idx_pulocation ON fact_trips(pulocation_id);
 CREATE INDEX idx_dolocation ON fact_trips(dolocation_id);
 CREATE INDEX idx_od_pair ON fact_trips(pulocation_id, dolocation_id);
 CREATE INDEX idx_congestion_level ON fact_trips(congestion_level);
+
+-- a table to show the excluded data logs
+CREATE TABLE excluded_data_log (
+    log_id INT AUTO_INCREMENT PRIMARY KEY,
+    issue_type VARCHAR(50) NOT NULL,
+    trip_identifier VARCHAR(255),
+    field_name VARCHAR(50),
+    issue_description TEXT,
+    action_taken VARCHAR(100),
+
+    INDEX idx_issue_type (issue_type)
+) ENGINE=InnoDB;
