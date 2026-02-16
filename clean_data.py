@@ -65,7 +65,7 @@ def clean_data_simple(input_file, zone_lookup_file):
 
         # STEP 2: Check for missing critical fields
         critical_fields = ['tpep_pickup_datetime', 'tpep_dropoff_datetime',
-                           'trip_distance', 'fare_amount', 'PULocationID', 'DOLocationID']
+                           'trip_distance', 'fare_amount', 'PULocationID', 'DOLocationID', 'total_amount']
 
         # Remove rows with any missing critical field
         for field in critical_fields:
