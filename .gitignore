@@ -1,1 +1,3 @@
-.svenv/
+.svenv
+clean.py
+clean.py
