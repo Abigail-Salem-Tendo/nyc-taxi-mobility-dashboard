@@ -75,7 +75,7 @@ def clean_data_simple(input_file, zone_lookup_file):
                 chunk = chunk[chunk[field].notna()]
                 issues['missing_critical_fields'] = issues['missing_critical_fields'] + (before - len(chunk))
 
-        # STEP 3: Parse and validate datetimes
+        # Parse and validate datetimes
         chunk['tpep_pickup_datetime'] = pd.to_datetime(chunk['tpep_pickup_datetime'], errors='coerce')
         chunk['tpep_dropoff_datetime'] = pd.to_datetime(chunk['tpep_dropoff_datetime'], errors='coerce')
 
@@ -90,7 +90,7 @@ def clean_data_simple(input_file, zone_lookup_file):
         chunk = chunk[chunk['tpep_dropoff_datetime'] > chunk['tpep_pickup_datetime']]
         issues['negative_duration'] = issues['negative_duration'] + (before - len(chunk))
 
-        # STEP 4: Validate trip duration (0 < duration <= 4 hours)
+        # Validate trip duration (0 < duration <= 4 hours)
         # Calculate duration in hours for validation only
         duration_seconds = (chunk['tpep_dropoff_datetime'] - chunk['tpep_pickup_datetime']).dt.total_seconds()
         duration_hours = duration_seconds / 3600
@@ -107,7 +107,7 @@ def clean_data_simple(input_file, zone_lookup_file):
         duration_hours = duration_hours[duration_hours <= 4]
         issues['duration_too_long'] = issues['duration_too_long'] + (before - len(chunk))
 
-        # STEP 5: Validate trip distance
+        # Validate trip distance
         # Remove zero or negative distance
         before = len(chunk)
         chunk = chunk[chunk['trip_distance'] > 0]
@@ -116,13 +116,13 @@ def clean_data_simple(input_file, zone_lookup_file):
         # Note: NOT capping maximum distance
         # Reason: Round trips or long-distance trips are valid for city planning
 
-        # STEP 6: Validate passenger count
+        # Validate passenger count
         # NYC taxis have max 6 passengers, minimum 1
         before = len(chunk)
         chunk = chunk[(chunk['passenger_count'] >= 1) & (chunk['passenger_count'] <= 6)]
         issues['invalid_passengers'] = issues['invalid_passengers'] + (before - len(chunk))
 
-        # STEP 7: Validate fare amount
+        # Validate fare amount
         # Remove negative fares only
         before = len(chunk)
         chunk = chunk[chunk['fare_amount'] > 0]
@@ -131,7 +131,7 @@ def clean_data_simple(input_file, zone_lookup_file):
         # Note: NOT capping maximum fare
         # Reason: Long trips can legitimately have high fares
 
-        # STEP 8: Validate location IDs
+        # SValidate location IDs
         # Exclude Zone 264 (Unknown) and Zone 265 (Outside of NYC)
         # These zones are invalid for NYC city planning analysis
         before = len(chunk)
