@@ -215,9 +215,6 @@ def clean_data_simple(input_file, zone_lookup_file):
         chunk['congestion_level'] = congestion_list
 
 
-        # =============================================
-        # STEP 13: Save cleaned chunk
-        # =============================================
         if len(chunk) > 0:
             chunk.to_csv(output_file, mode='a', index=False, header=first_chunk)
             total_out = total_out + len(chunk)
@@ -227,9 +224,8 @@ def clean_data_simple(input_file, zone_lookup_file):
         percent_kept = (total_out / total_in * 100) if total_in > 0 else 0
         print(f"  Chunk {chunk_number}: {total_in:,} rows processed | {total_out:,} kept ({percent_kept:.1f}%)")
 
-    # =============================================
     # SAVE DETAILED LOG FILE
-    # =============================================
+  
     with open(log_file, "w") as f:
         f.write("=" * 70 + "\n")
         f.write("NYC TAXI DATA CLEANING LOG\n")
