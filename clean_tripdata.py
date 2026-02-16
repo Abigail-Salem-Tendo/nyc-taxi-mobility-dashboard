@@ -5,7 +5,7 @@ def clean_data_simple(input_file):
     output_file = "cleaned_data.csv"
     log_file = "cleaning_log.txt"
     
-    # 1. Start fresh: Delete old files if they exist
+    # 1. Delete old files if they exist
     if os.path.exists(output_file):
         os.remove(output_file)
     
