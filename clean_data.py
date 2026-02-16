@@ -151,7 +151,7 @@ def clean_data_simple(input_file, zone_lookup_file):
         chunk = chunk[chunk['DOLocationID'].isin(valid_zone_ids)]
         issues['invalid_location'] = issues['invalid_location'] + (before - len(chunk))
 
-        # STEP 9: Save cleaned chunk
+        #  Save cleaned chunk
         if len(chunk) > 0:
             chunk.to_csv(output_file, mode='a', index=False, header=first_chunk)
             total_out = total_out + len(chunk)
