@@ -37,6 +37,7 @@ CREATE TABLE trip_data (
     -- Derived Columns for Insights
     avg_speed_mph DECIMAL(10, 2),
     congestion_level VARCHAR(10),
+    fare_per_mile DECIMAL(10, 2),
 
     -- values that will be auto generated in mysql
     trip_duration_min INT,
