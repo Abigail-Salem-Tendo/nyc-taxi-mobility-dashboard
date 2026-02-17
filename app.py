@@ -28,7 +28,7 @@ def query_db(query, params=None):
         result = connection.execute(text(query), params or {})
         return result.mappings().all()
     
-# Health check endpoint
+# Database connection check endpoint
 @app.route('/api/db_connection', methods=['GET'])
 def db_connection():
     try:
@@ -45,6 +45,8 @@ def db_connection():
             'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
             'error': str(e)
         }), 500
-    
+
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
