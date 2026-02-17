@@ -152,6 +152,9 @@ def calculate_features(df):
     duration_hours = df['trip_duration_min'] / 60
     df['avg_speed_mph'] = (df['trip_distance'] / duration_hours.replace(0, float('nan'))).round(2).fillna(0.0)
 
+    #Calculate fare per mile  using trip_distance
+    df['fare_per_mile'] = (df['fare_amount']/ df['trip_distance']).round(2)
+
     # Determining congestion levels based on average speed calculations
     def get_congestion(speed):
         if speed < 10:    return 'High'
@@ -197,7 +200,8 @@ def load_trip_data(engine, csv_path, batch_size=100000):
         'trip_duration_min',
         'hour_of_day',
         'day_of_week',
-        'is_peak_hour'
+        'is_peak_hour',
+        'fare_per_mile'
     ]
 
     total_inserted = 0
