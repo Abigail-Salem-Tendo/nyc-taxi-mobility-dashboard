@@ -136,6 +136,8 @@ def calculate_features(df):
         .dt.total_seconds() / 60
     ).round(0).astype(int)
 
+    # remove trips with zero or negative duration to avoid issues in speed calculation
+    df = df[df['trip_duration_min'] > 0]
     # Hour of day (0-23) from pickup_datetime
     df['hour_of_day'] = df['pickup_datetime'].dt.hour
 
@@ -144,11 +146,11 @@ def calculate_features(df):
 
     # Identification of peak hours where 7am-9am is morning-rush and 5pm-7pm is evening-rush
     peak_hours = [6, 7, 8, 9, 16, 17, 18, 19]
-    df['is_peak_hour'] = df['pickup_datetime'].dt.hour.isin(peak_hours)
+    df['is_peak_hour'] = df['pickup_datetime'].dt.hour.isin(peak_hours).astype(int) 
 
     # Average speed calculations by miles per hour (mph)
     duration_hours = df['trip_duration_min'] / 60
-    df['avg_speed_mph'] = (df['trip_distance'] / duration_hours).round(2)
+    df['avg_speed_mph'] = (df['trip_distance'] / duration_hours.replace(0, float('nan'))).round(2).fillna(0.0)
 
     # Determining congestion levels based on average speed calculations
     def get_congestion(speed):
