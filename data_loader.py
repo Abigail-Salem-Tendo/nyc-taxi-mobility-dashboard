@@ -31,7 +31,7 @@ def get_engine():
     return engine
 
 
-# STEP 1 - Load zone_lookup from taxi_zone_lookup.csv
+# Loading the zone_lookup.csv file into zone_lookup table 
 def load_zone_lookup(engine, csv_path):
     print("\n" + "="*60)
     print("STEP 1: LOADING ZONE LOOKUP")
@@ -55,8 +55,7 @@ def load_zone_lookup(engine, csv_path):
     df.to_sql('zone_lookup', engine, if_exists='append', index=False)
     print(f" inserted {len(df)} zones into zone_lookup")
 
-
-# STEP 2 - Load zone_geo from taxi_zones shapefile
+# Loading the shapefile and inserting into zone_geo table
 def load_zone_geo(engine, shapefile_path):
     print("\n" + "="*60)
     print("STEP 2: LOADING ZONE GEOMETRY")
@@ -96,7 +95,6 @@ def load_zone_geo(engine, shapefile_path):
     print(f"  {len(geo_df)} unique geometries after deduplication")
 
     # Only keep location_ids that exist in zone_lookup
-    # This prevents foreign key violations
     with engine.connect() as conn:
         result   = conn.execute(text("select location_id from zone_lookup"))
         valid_ids = set(row[0] for row in result)
@@ -105,7 +103,6 @@ def load_zone_geo(engine, shapefile_path):
     print(f"  {len(geo_df)} geometries match zones in zone_lookup")
 
     # insert one row at a time using raw SQL
-    # This avoids pandas auto-creating the table with wrong column types
     inserted = 0
     skipped  = 0
 
@@ -130,45 +127,30 @@ def load_zone_geo(engine, shapefile_path):
         print(f"  Skipped {skipped} geometries")
 
 
-# STEP 3 - Calculate derived features for trip_data
+# Calculate isnight features for trip_data before inserting into database
 def calculate_features(df):
-    """
-    Calculates all 6 derived columns before inserting into trip_data.
-    This runs on each chunk of the cleaned_data.csv file.
-    """
 
-    # 1. Trip duration in minutes
+    # Calculate trip duration in minutes
     df['trip_duration_min'] = (
         (df['dropoff_datetime'] - df['pickup_datetime'])
         .dt.total_seconds() / 60
     ).round(0).astype(int)
 
-    # 2. Hour of day (0-23)
+    # Hour of day (0-23) from pickup_datetime
     df['hour_of_day'] = df['pickup_datetime'].dt.hour
 
-    # 3. Day of week
-    # Python: 0=Monday, 6=Sunday
-    # MySQL:  1=Sunday, 7=Saturday
-    dow = (df['pickup_datetime'].dt.dayofweek + 2) % 7
-    df['day_of_week'] = dow.replace(0, 7)
+    # Getting the day of the week from pickup_datetime
+    df['day_of_week'] = df['pickup_datetime'].dt.day_name()
 
-    # 4. Is peak hour (7am-9am or 5pm-7pm)
-    df['is_peak_hour'] = df['hour_of_day'].isin(
-        [7, 8, 9, 17, 18, 19]
-    ).astype(int)
+    # Identification of peak hours where 7am-9am is morning-rush and 5pm-7pm is evening-rush
+    peak_hours = [6, 7, 8, 9, 16, 17, 18, 19]
+    df['is_peak_hour'] = df['pickup_datetime'].dt.hour.isin(peak_hours)
 
-    # 5. Average speed in MPH
+    # Average speed calculations by miles per hour (mph)
     duration_hours = df['trip_duration_min'] / 60
     df['avg_speed_mph'] = (df['trip_distance'] / duration_hours).round(2)
 
-    # Fix division by zero or NaN
-    df['avg_speed_mph'] = (
-        df['avg_speed_mph']
-        .replace([float('inf'), float('-inf')], 0)
-        .fillna(0)
-    )
-
-    # 6. Congestion level from speed
+    # Determining congestion levels based on average speed calculations
     def get_congestion(speed):
         if speed < 10:    return 'High'
         elif speed <= 20: return 'Medium'
@@ -179,7 +161,7 @@ def calculate_features(df):
     return df
 
 
-# STEP 4 - Load trip_data from cleaned_data.csv
+# Inserting the cleaned trip data into the trip_data table in batches to optimize performance
 def load_trip_data(engine, csv_path, batch_size=100000):
     print("\n" + "="*60)
     print("STEP 3: LOADING TRIP DATA")
@@ -253,7 +235,7 @@ def load_trip_data(engine, csv_path, batch_size=100000):
     print(f"\n Total trips inserted: {total_inserted:,}")
 
 
-# STEP 5 - Load excluded_data_log
+# Inserting the exxluded data log from the cleaner script into the excluded_data_log table
 def load_excluded_log(engine, csv_path):
     print("\n" + "="*60)
     print("STEP 4: LOADING EXCLUDED DATA LOG")
@@ -289,7 +271,7 @@ def main():
     print("="*60)
     print(f"Started: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
 
-    # Get all file paths from .env
+    # Get all file paths to the data sets from .env
     ZONE_LOOKUP  = os.getenv('ZONE_LOOKUP_FILE')
     ZONE_SHAPE   = os.getenv('ZONE_SHAPEFILE')
     CLEANED_DATA = os.getenv('CLEANED_TRIP_DATA')
@@ -311,8 +293,7 @@ def main():
         # Connect to database
         engine = get_engine()
 
-        # Load in this order - zones must go in before trips
-        # because trip_data has foreign keys to zone_lookup
+        # Load zone lookup and geometry data first since trip_data depends on it for foreign keys
         load_zone_lookup(engine, ZONE_LOOKUP)
         load_zone_geo(engine, ZONE_SHAPE)
         load_trip_data(engine, CLEANED_DATA)
