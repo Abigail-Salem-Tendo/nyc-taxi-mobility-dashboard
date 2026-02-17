@@ -251,6 +251,6 @@ def clean_data_simple(input_file, zone_lookup_file):
 # RUN THE SCRIPT
 if __name__ == "__main__":
     clean_data_simple(
-        input_file=r"C:\Users\user\Documents\Summative\yellow_tripdata_2019-01.csv",
-        zone_lookup_file=r"C:\Users\user\Documents\Summative\taxi_zone_lookup.csv"
+        input_file="yellow_tripdata_2019-01.csv",
+        zone_lookup_file="taxi_zone_lookup.csv"
     )
