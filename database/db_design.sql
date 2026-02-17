@@ -41,7 +41,7 @@ CREATE TABLE trip_data (
     -- values that will be auto generated in mysql
     trip_duration_min INT,
     hour_of_day TINYINT,
-    day_of_week TINYINT,
+    day_of_week VARCHAR(50),
     is_peak_hour BOOLEAN,
 
     FOREIGN KEY (pulocation_id) REFERENCES zone_lookup(location_id),
