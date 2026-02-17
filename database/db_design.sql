@@ -14,7 +14,7 @@ CREATE TABLE zone_lookup
 );
 
 -- Table to reference the taxi_zones shape file
-CREATE TABLE zone_geo (
+CREATE TABLE IF NOT EXISTS zone_geo (
     location_id INT PRIMARY KEY,
     zone_geojson LONGTEXT NOT NULL,
     FOREIGN KEY (location_id)
@@ -22,7 +22,7 @@ CREATE TABLE zone_geo (
 );
 
 -- Trips table for yellow_tripdata.csv file
-CREATE TABLE trip_data (
+CREATE TABLE IF NOT EXISTS trip_data (
     trip_id INT AUTO_INCREMENT PRIMARY KEY,
     vendor_id TINYINT,
     pickup_datetime DATETIME NOT NULL,
