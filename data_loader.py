@@ -231,8 +231,6 @@ def load_trip_data(engine, csv_path, batch_size=100000):
             engine,
             if_exists='append',
             index=False,
-            method='multi',
-            chunksize=1000
         )
 
         total_inserted += len(chunk)
