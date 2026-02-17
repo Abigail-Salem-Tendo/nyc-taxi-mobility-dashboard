@@ -38,16 +38,13 @@ CREATE TABLE IF NOT EXISTS trip_data (
     avg_speed_mph DECIMAL(10, 2),
     congestion_level VARCHAR(10),
     fare_per_mile DECIMAL(10, 2),
-
     -- values that will be auto generated in mysql
     trip_duration_min INT,
     hour_of_day TINYINT,
     day_of_week VARCHAR(50),
     is_peak_hour BOOLEAN,
-
     FOREIGN KEY (pulocation_id) REFERENCES zone_lookup(location_id),
     FOREIGN KEY (dolocation_id) REFERENCES zone_lookup(location_id),
-
     CHECK (trip_distance >= 0),
     CHECK (fare_amount >= 0),
     CHECK (pickup_datetime < dropoff_datetime)
