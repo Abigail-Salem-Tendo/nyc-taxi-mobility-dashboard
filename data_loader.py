@@ -51,9 +51,9 @@ def load_zone_lookup(engine, csv_path):
     # Only keep the 4 columns the table has
     df = df[['location_id', 'borough', 'zone_name', 'service_zone']]
 
-    # Insert into zone_lookup table
+    # insert into zone_lookup table
     df.to_sql('zone_lookup', engine, if_exists='append', index=False)
-    print(f" Inserted {len(df)} zones into zone_lookup")
+    print(f" inserted {len(df)} zones into zone_lookup")
 
 
 # STEP 2 - Load zone_geo from taxi_zones shapefile
@@ -98,13 +98,13 @@ def load_zone_geo(engine, shapefile_path):
     # Only keep location_ids that exist in zone_lookup
     # This prevents foreign key violations
     with engine.connect() as conn:
-        result   = conn.execute(text("SELECT location_id FROM zone_lookup"))
+        result   = conn.execute(text("select location_id from zone_lookup"))
         valid_ids = set(row[0] for row in result)
 
     geo_df = geo_df[geo_df['location_id'].isin(valid_ids)]
     print(f"  {len(geo_df)} geometries match zones in zone_lookup")
 
-    # Insert one row at a time using raw SQL
+    # insert one row at a time using raw SQL
     # This avoids pandas auto-creating the table with wrong column types
     inserted = 0
     skipped  = 0
@@ -113,8 +113,8 @@ def load_zone_geo(engine, shapefile_path):
         for _, row in geo_df.iterrows():
             try:
                 conn.execute(text("""
-                    INSERT INTO zone_geo (location_id, zone_geojson)
-                    VALUES (:location_id, :zone_geojson)
+                    insert into zone_geo (location_id, zone_geojson)
+                    values (:location_id, :zone_geojson)
                 """), {
                     'location_id':  int(row['location_id']),
                     'zone_geojson': row['zone_geojson']
@@ -125,7 +125,7 @@ def load_zone_geo(engine, shapefile_path):
                 print(f"    Skipped location_id {row['location_id']}: {e}")
         conn.commit()
 
-    print(f" Inserted {inserted} geometries into zone_geo")
+    print(f" inserted {inserted} geometries into zone_geo")
     if skipped > 0:
         print(f"  Skipped {skipped} geometries")
 
@@ -237,7 +237,7 @@ def load_trip_data(engine, csv_path, batch_size=100000):
         cols  = [c for c in db_columns if c in chunk.columns]
         chunk = chunk[cols]
 
-        # Insert into trip_data
+        # insert into trip_data
         chunk.to_sql(
             'trip_data',
             engine,
@@ -279,81 +279,10 @@ def load_excluded_log(engine, csv_path):
     df   = df[cols]
 
     df.to_sql('excluded_data_log', engine, if_exists='append', index=False)
-    print(f" Inserted {len(df)} entries into excluded_data_log")
+    print(f" inserted {len(df)} entries into excluded_data_log")
 
 
-# STEP 6 - Verify everything loaded correctly
-def verify_data(engine):
-    print("\n" + "="*60)
-    print("VERIFICATION")
-    print("="*60)
-
-    with engine.connect() as conn:
-
-        # Row counts for all tables
-        tables = [
-            'zone_lookup',
-            'zone_geo',
-            'trip_data',
-            'excluded_data_log'
-        ]
-        for table in tables:
-            result = conn.execute(text(f"SELECT COUNT(*) FROM {table}"))
-            count  = result.scalar()
-            print(f"  {table:<25} {count:>10,} rows")
-
-        # Show 3 sample trips to confirm calculations
-        print("\n  Sample trips (first 3):")
-        result = conn.execute(text("""
-            SELECT
-                trip_id,
-                trip_distance,
-                trip_duration_min,
-                avg_speed_mph,
-                congestion_level,
-                hour_of_day,
-                is_peak_hour
-            FROM trip_data
-            LIMIT 3
-        """))
-        for row in result:
-            peak = "PEAK" if row[6] else ""
-            print(
-                f"    Trip {row[0]:>6}: "
-                f"{row[1]}mi | "
-                f"{row[2]}min | "
-                f"{row[3]}mph | "
-                f"{row[4]:<8} | "
-                f"hour={row[5]} {peak}"
-            )
-
-        # Congestion breakdown
-        print("\n  Congestion breakdown:")
-        result = conn.execute(text("""
-            SELECT congestion_level, COUNT(*) as cnt
-            FROM trip_data
-            GROUP BY congestion_level
-            ORDER BY cnt DESC
-        """))
-        for row in result:
-            print(f"    {row[0]:<10} {row[1]:>10,} trips")
-
-        # Top 5 busiest hours
-        print("\n  Top 5 busiest hours:")
-        result = conn.execute(text("""
-            SELECT hour_of_day, COUNT(*) as cnt
-            FROM trip_data
-            GROUP BY hour_of_day
-            ORDER BY cnt DESC
-            LIMIT 5
-        """))
-        for row in result:
-            print(f"    {row[0]:02d}:00  →  {row[1]:>10,} trips")
-
-    print("\n Verification complete!")
-
-
-# MAIN
+# Main function to run all steps in order
 def main():
     print("\n" + "="*60)
     print("NYC TAXI DATA LOADER")
@@ -391,9 +320,6 @@ def main():
         # Load excluded log if path is set
         if EXCLUDED_LOG:
             load_excluded_log(engine, EXCLUDED_LOG)
-
-        # Verify everything loaded
-        verify_data(engine)
 
         print("\n" + "="*60)
         print(" ALL DATA LOADED SUCCESSFULLY!")
