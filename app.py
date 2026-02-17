@@ -22,3 +22,8 @@ def get_engine():
     return create_engine(url)
 
 engine = get_engine()
+
+def query_db(query, params=None):
+    with engine.connect() as connection:
+        result = connection.execute(text(query), params or {})
+        return result.mappings().all()
