@@ -97,11 +97,11 @@ def main():
         engine = get_engine()
         run_sql_file(engine, SQL_FILE)
 
-        print("\n" + "="*60)
+        print("\n" + "="*70)
         print(" DATABASE SETUP COMPLETE!")
-        print("="*60)
+        print("="*70)
         print(f"Finished: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-        print("  You can now run loader.py to load your data.\n")
+        print("You can now run data_loader.py to load your data.\n")
 
     except FileNotFoundError as e:
         print(f"\n FILE ERROR: {e}")
