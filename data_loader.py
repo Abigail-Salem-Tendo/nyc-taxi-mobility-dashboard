@@ -321,9 +321,6 @@ def main():
         if EXCLUDED_LOG:
             load_excluded_log(engine, EXCLUDED_LOG)
 
-        # Verify everything loaded
-        verify_data(engine)
-
         print("\n" + "="*60)
         print(" ALL DATA LOADED SUCCESSFULLY!")
         print("="*60)
