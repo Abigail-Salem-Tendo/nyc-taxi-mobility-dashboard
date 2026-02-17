@@ -27,3 +27,21 @@ def query_db(query, params=None):
     with engine.connect() as connection:
         result = connection.execute(text(query), params or {})
         return result.mappings().all()
+    
+# Health check endpoint
+@app.route('/api/db_connection', methods=['GET'])
+def db_connection():
+    try:
+        query_db('SELECT 1')
+        return jsonify({
+            'status': 'ok',
+            'message': f'{os.getenv("DB_NAME")} database connection is successful',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        }), 200
+    except Exception as e:
+        return jsonify({
+            'status': 'error',
+            'message': f'{os.getenv("DB_NAME")} database connection has failed: {str(e)}',
+            'timestamp': datetime.now().strftime('%Y-%m-%d %H:%M:%S'),
+            'error': str(e)
+        }), 500
