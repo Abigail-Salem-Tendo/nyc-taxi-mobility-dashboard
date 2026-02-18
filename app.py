@@ -26,7 +26,7 @@ engine = get_engine()
 def query_db(query, params=None):
     with engine.connect() as connection:
         result = connection.execute(text(query), params or {})
-        return result.mappings().all()
+        return [dict(row) for row in result.mappings().all()]
     
 # Database connection check endpoint
 @app.route('/api/db_connection', methods=['GET'])
