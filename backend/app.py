@@ -234,22 +234,13 @@ def algorithm_info():
   
     return jsonify({
         'success': True,
-        'project_info': {
-            'title': 'NYC Taxi Trip Analysis with Custom Algorithms',
-            'purpose': 'Analyze taxi trip patterns to help city planners optimize taxi dispatch',
-            'student': 'Database Systems Course Project'
-        },
+        'project': 'NYC Taxi Mobility Dashboard',
         'algorithms': [
             {
                 'name': 'Manual Counting Algorithm',
-                'purpose': 'Count trips per zone without using pandas groupby or value_counts',
-                'time_complexity': 'O(n)',
-                'space_complexity': 'O(m)',
-                'complexity_explanation': {
-                    'n': 'number of trip records in database (~500,000+)',
-                    'm': 'number of unique zones in NYC (~263 zones)',
-                    'why_efficient': 'Linear time - we look at each trip exactly once'
-                },
+                'purpose': 'Count trips per zone',
+                'time_complexity': 'O(n) this iterates through all trips once',
+                'space_complexity': 'O(m) this stores only unique zones and their counts',
                 'pseudo_code': [
                     '1. Create empty dictionary zone_counts',
                     '2. For each zone_id in dataset:',
@@ -259,18 +250,12 @@ def algorithm_info():
                     '      - Add zone_id with count = 1',
                     '3. Return zone_counts dictionary'
                 ],
-                'why_manual': 'Demonstrates understanding of counting without relying on built-in functions'
             },
             {
                 'name': 'Selection Sort',
-                'purpose': 'Sort zones by trip count from highest to lowest without using built-in sort',
-                'time_complexity': 'O(n²)',
-                'space_complexity': 'O(1)',
-                'complexity_explanation': {
-                    'n': 'number of zones to sort (~263 zones)',
-                    'why_acceptable': "O(n²) is fine for small datasets. With 263 zones, that's only ~34,500 comparisons",
-                    'alternative': 'For larger datasets (10,000+ items), would use QuickSort or MergeSort with O(n log n)'
-                },
+                'purpose': 'Sort zones by trip count from highest to lowest',
+                'time_complexity': 'O(n²) uses nestd loops to find maximum value for each position',
+                'space_complexity': 'O(1) sorts in place without extra data structures',
                 'pseudo_code': [
                     '1. For each position i from 0 to n-1:',
                     '   a. Set max_index = i (assume current has maximum)',
@@ -281,7 +266,7 @@ def algorithm_info():
                     '2. Return sorted list'
                 ],
                 'how_it_works': 'Repeatedly finds the maximum element and moves it to the front',
-                'why_manual': 'Shows understanding of sorting logic step-by-step'
+    
             }
         ],
         'implementation_details': {
@@ -298,7 +283,7 @@ def algorithm_info():
                 'For loops',
                 'Comparisons'
             ],
-            'code_location': 'app.py lines 67-145'
+           
         },
         'real_world_application': {
             'problem': 'Which taxi zones are busiest?',
@@ -312,25 +297,9 @@ def algorithm_info():
             ]
         },
         'endpoints_using_algorithms': {
-            'pickup_zones': {
-                'url': '/api/top-pickup-zones',
-                'method': 'GET',
-                'parameters': 'limit (optional, default=10, max=50)',
-                'example': '/api/top-pickup-zones?limit=5'
-            },
-            'dropoff_zones': {
-                'url': '/api/top-dropoff-zones',
-                'method': 'GET',
-                'parameters': 'limit (optional, default=10, max=50)',
-                'example': '/api/top-dropoff-zones?limit=5'
-            }
-        },
-        'learning_outcomes': [
-            'Understanding time and space complexity',
-            'Implementing algorithms from scratch',
-            'Choosing appropriate algorithms for dataset size',
-            'Translating real-world problems into algorithmic solutions'
-        ]
+            'pickup_zones': '/api/top-pickup-zones',
+            'dropoff_zones': '/api/top-dropoff-zones'
+        }
     })
 
 if __name__ == '__main__':
