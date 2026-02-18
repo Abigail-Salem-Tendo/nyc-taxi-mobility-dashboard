@@ -21,10 +21,10 @@ db.init_app(app)
 def check_db():
     try:
         db.session.execute(db.text('SELECT 1'))
-        return jsonify({'status': 'success', 'message': f'{os.getenv("DB_NAME")} database connected successful'})
+        return jsonify({'status': 'success', 'message': f'{os.getenv("DB_NAME")} database connected successfully'})
     
     except Exception as e:
-        return jsonify({'status': 'error', 'message': str(e)}), 500
+        return jsonify({'status': 'error', 'message': f'{os.getenv("DB_NAME")} database connection failed'}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
