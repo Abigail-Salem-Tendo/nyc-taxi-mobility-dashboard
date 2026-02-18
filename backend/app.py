@@ -34,16 +34,10 @@ my_db.init_app(app)
 
 
 
-# Algorithm endpoints using manual implementation
+# function to count zones manually without using pandas value_counts or groupby
 
 def count_zones_manual(zone_data):
-    """
-    MANUAL COUNTING ALGORITHM
-    Count trips per zone WITHOUT using pandas groupby or value_counts.
     
-    TIME COMPLEXITY: O(n) where n = number of trip records
-    SPACE COMPLEXITY: O(m) where m = number of unique zones
-    """
     zone_counts = {}
     
     for zone_id in zone_data:
@@ -54,6 +48,7 @@ def count_zones_manual(zone_data):
     
     return zone_counts
 
+# function to sort zones by count using selection sort
 
 def selection_sort_zones(zone_list):
    
@@ -84,7 +79,7 @@ def get_zone_name_from_db(zone_id):
     except:
         return f"Zone {zone_id}"
     
-# the endpoints below implement the algorithms for counting and sorting zones
+# Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 
 @app.route('/api/top-pickup-zones', methods=['GET'])
 def top_pickup_zones():
