@@ -24,7 +24,15 @@ def get_engine():
 
 engine = get_engine()
 
-
+# Database connection checker endpoint
+@app.route('/api/db_connection', methods=['GET'])
+def check_db():
+    try:
+        db.session.execute(db.text('SELECT 1'))
+        return jsonify({'status': 'success', 'message': f'{os.getenv("DB_NAME")} database connected successful'})
+    
+    except Exception as e:
+        return jsonify({'status': 'error', 'message': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
