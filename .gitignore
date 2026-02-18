@@ -3,3 +3,4 @@
 cleaned_data.csv
 cleaning_log.txt
 excluded_data_log.csv
+*/__pycache__/
