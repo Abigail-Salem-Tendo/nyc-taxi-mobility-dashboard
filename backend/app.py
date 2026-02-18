@@ -6,9 +6,6 @@ import os
 from datetime import datetime
 from models import db, ZoneLookup, ZoneGeo, Tripdata, ExcludedData
 
-#import models
-from models import my_db, Tripdata, ZoneLookup
-
 load_dotenv()
 
 app = Flask(__name__)
@@ -29,8 +26,6 @@ def check_db():
     except Exception as e:
         return jsonify({'status': 'error', 'message': f'{os.getenv("DB_NAME")} database connection failed'}), 500
 
-# Initialize SQLAlchemy with app
-my_db.init_app(app)
 
 # Statistics of all average stored data in the database
 @app.route('/api/statistics', methods=['GET'])
