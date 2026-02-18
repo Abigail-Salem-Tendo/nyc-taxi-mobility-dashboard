@@ -88,5 +88,25 @@ def trips_by_hour():
 
     return jsonify(rows)
 
+
+@app.route('/api/trips-by-day')
+def trips_by_day():
+    rows = query_db("""
+        SELECT
+            day_of_week,
+            COUNT(*)                          AS trips_done_on_the_day,
+            ROUND(AVG(avg_speed_mph), 2)      AS average_speed_in_miles_per_hour,
+            ROUND(AVG(fare_per_mile), 2)      AS average_fare_per_mile,
+            ROUND(AVG(trip_duration_min), 1)  AS average_duration_in_minutes,
+            ROUND(AVG(fare_amount), 2)        AS average_fare_generated,
+            ROUND(AVG(tip_amount), 2)         AS average_tip_amount
+        FROM trip_data
+        GROUP BY day_of_week
+        ORDER BY field(day_of_week, 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
+    """)
+
+    return jsonify(rows)
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
