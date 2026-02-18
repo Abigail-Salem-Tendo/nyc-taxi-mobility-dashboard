@@ -32,7 +32,7 @@ class ZoneGeo(db.Model):
         }
 
 class Tripdata(db.Model):
-    __tablename__ = 'tripdata'
+    __tablename__ = 'trip_data'
     trip_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     vendor_id = db.Column(db.SmallInteger)
     pickup_datetime = db.Column(db.DateTime, nullable=False)
