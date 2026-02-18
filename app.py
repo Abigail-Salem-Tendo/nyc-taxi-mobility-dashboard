@@ -108,5 +108,26 @@ def trips_by_day():
     return jsonify(rows)
 
 
+@app.route('/api/peak-vs-offpeak')
+def peak_vs_offpeak():
+    rows = query_db("""
+        select
+            is_peak_hour,
+            COUNT(*)                          AS trips_in_the_hour,
+            ROUND(AVG(avg_speed_mph), 2)      AS average_speed_in_miles_per_hour,
+            ROUND(AVG(fare_per_mile), 2)      AS average_fare_per_mile,
+            ROUND(AVG(trip_duration_min), 1)  AS average_duration_in_minutes,
+            ROUND(AVG(fare_amount), 2)        AS average_fare_generated,
+            ROUND(AVG(tip_amount), 2)         AS average_tip_amount
+        from trip_data
+        GROUP BY is_peak_hour
+    """)
+
+    for row in rows:
+        row['is_peak_hour'] = bool(row['is_peak_hour'])
+
+    return jsonify(rows)
+
+
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
