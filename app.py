@@ -65,6 +65,28 @@ def statistics():
 
     return jsonify(dict(row._mapping))
 
+@app.route('/api/trips-by-hour')
+def trips_by_hour():
+    rows = query_db("""
+        SELECT
+            hour_of_day,
+            is_peak_hour,
+            COUNT(*)                          AS trips_in_the_hour,
+            ROUND(AVG(avg_speed_mph), 2)      AS average_speed_in_miles_per_hour,
+            ROUND(AVG(fare_per_mile), 2)      AS average_fare_per_mile,
+            ROUND(AVG(trip_duration_min), 1)  AS average_duration_in_minutes,
+            ROUND(AVG(fare_amount), 2)        AS average_fare_generated,
+            ROUND(AVG(passenger_count), 2)    AS average_passengers,
+            ROUND(AVG(tip_amount), 2)         AS average_tip_amount
+        FROM trip_data
+        GROUP BY hour_of_day, is_peak_hour
+        ORDER BY hour_of_day
+    """)
+
+    for row in rows:
+        row['is_peak_hour'] = bool(row['is_peak_hour'])
+
+    return jsonify(rows)
 
 if __name__ == '__main__':
     app.run(debug=True, port=5000)
