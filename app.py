@@ -46,6 +46,24 @@ def db_connection():
             'error': str(e)
         }), 500
 
+# Average statistics of all features derived from the data
+@app.route('/api/statistics', methods=['GET'])
+def statistics():
+    with engine.connect() as conn:
+        row = conn.execute(text("""
+            select
+                COUNT(*)                          AS total_trips,
+                ROUND(AVG(avg_speed_mph), 2)      AS average_speed_mph,
+                ROUND(AVG(fare_per_mile), 2)      AS average_fare_per_mile,
+                ROUND(AVG(trip_duration_min), 1)  AS average_duration_min,
+                ROUND(SUM(fare_amount), 2)        AS total_fare_amount,
+                ROUND(AVG(trip_distance), 2)      AS average_distance_miles,
+                ROUND(AVG(passenger_count), 2)    AS average_passengers,
+                ROUND(AVG(tip_amount), 2)         AS average_tip
+            from trip_data
+        """)).fetchone()
+
+    return jsonify(dict(row._mapping))
 
 
 if __name__ == '__main__':
