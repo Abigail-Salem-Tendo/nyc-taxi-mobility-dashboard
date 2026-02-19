@@ -1,6 +1,6 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
-from sqlalchemy import create_engine, func, text
+from sqlalchemy import create_engine, func, text, case
 from dotenv import load_dotenv
 import os
 from datetime import datetime
@@ -164,6 +164,135 @@ def get_zone_name_from_db(zone_id):
     
 # Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 
+@app.route('/api/trips-by-distance', methods=['GET'])
+def trips_by_distance():
+    borough = request.args.get('borough')
+
+    distance_category = case(
+        (Tripdata.trip_distance <= 2, "0-2"),
+        (Tripdata.trip_distance <= 5, "2-5"),
+        (Tripdata.trip_distance <= 10, "5-10"),
+        else_="10+"
+    ).label("distance_category")
+
+    query = db.session.query(
+        distance_category,
+        func.count(Tripdata.trip_id).label("trip_count"),
+        func.avg(Tripdata.fare_amount).label("avg_fare"),
+        func.avg(Tripdata.trip_duration_min).label("avg_duration"),
+        func.avg(Tripdata.avg_speed_mph).label("avg_speed")
+    )
+
+    # only join if borough filter is used
+    if borough:
+        query = query.join(
+            ZoneLookup,
+            Tripdata.pulocation_id == ZoneLookup.location_id
+        ).filter(ZoneLookup.borough == borough)
+
+    results = query.group_by(distance_category).all()
+
+    data = []
+    for row in results:
+        data.append({
+            "distance_category": row.distance_category,
+            "trip_count": int(row.trip_count),
+            "avg_fare": float(row.avg_fare) if row.avg_fare else 0,
+            "avg_duration_min": float(row.avg_duration) if row.avg_duration else 0,
+            "avg_speed_mph": float(row.avg_speed) if row.avg_speed else 0
+        })
+
+    return jsonify(data)
+
+# ENDPOINT 2
+@app.route('/api/short-trip-inefficiency', methods=['GET'])
+def short_trip_inefficiency():
+    max_distance = request.args.get('max_distance', 1.0, type=float)
+    borough = request.args.get('borough')
+
+    # Summary stats
+    summary_query = db.session.query(
+        func.count(Tripdata.trip_id).label("short_trip_count"),
+        func.avg(Tripdata.fare_amount).label("avg_fare"),
+        func.avg(Tripdata.trip_duration_min).label("avg_duration"),
+        func.avg(Tripdata.avg_speed_mph).label("avg_speed")
+    ).filter(Tripdata.trip_distance < max_distance)
+
+    if borough:
+        summary_query = summary_query.join(
+            ZoneLookup,
+            Tripdata.pulocation_id == ZoneLookup.location_id
+        ).filter(ZoneLookup.borough == borough)
+
+    summary = summary_query.first()
+
+    # Top pickup zones for short trips
+    top_zones_query = db.session.query(
+        ZoneLookup.borough,
+        ZoneLookup.zone_name,
+        func.count(Tripdata.trip_id).label("count")
+    ).join(
+        Tripdata, Tripdata.pulocation_id == ZoneLookup.location_id
+    ).filter(
+        Tripdata.trip_distance < max_distance
+    )
+
+    if borough:
+        top_zones_query = top_zones_query.filter(ZoneLookup.borough == borough)
+
+    top_zones = top_zones_query.group_by(
+        ZoneLookup.borough, ZoneLookup.zone_name
+    ).order_by(
+        func.count(Tripdata.trip_id).desc()
+    ).limit(10).all()
+
+    return jsonify({
+        "filters": {
+            "max_distance": max_distance,
+            "borough": borough if borough else "All"
+        },
+        "summary": {
+            "short_trip_count": int(summary.short_trip_count),
+            "avg_fare": float(summary.avg_fare) if summary.avg_fare else 0,
+            "avg_duration_min": float(summary.avg_duration) if summary.avg_duration else 0,
+            "avg_speed_mph": float(summary.avg_speed) if summary.avg_speed else 0
+        },
+        "top_pickup_zones": [
+            {
+                "borough": z.borough,
+                "zone_name": z.zone_name,
+                "short_trip_count": int(z.count)
+            }
+            for z in top_zones
+        ]
+    })
+
+@app.route('/api/borough-comparison', methods=['GET'])
+def borough_comparison():
+    results = db.session.query(
+        ZoneLookup.borough,
+        func.count(Tripdata.trip_id).label("total_trips"),
+        func.avg(Tripdata.trip_distance).label("avg_distance"),
+        func.avg(Tripdata.fare_amount).label("avg_fare"),
+        func.avg(Tripdata.avg_speed_mph).label("avg_speed")
+    ).join(
+        ZoneLookup, Tripdata.pulocation_id == ZoneLookup.location_id
+    ).group_by(
+        ZoneLookup.borough
+    ).order_by(
+        func.count(Tripdata.trip_id).desc()
+    ).all()
+
+    data = []
+    for row in results:
+        data.append({
+            "borough": row.borough,
+            "total_trips": int(row.total_trips),
+            "avg_distance": float(row.avg_distance) if row.avg_distance else 0,
+            "avg_fare": float(row.avg_fare) if row.avg_fare else 0,
+            "avg_speed_mph": float(row.avg_speed) if row.avg_speed else 0
+        })
+    return jsonify(data)
 @app.route('/api/top-pickup-zones', methods=['GET'])
 def top_pickup_zones():
   
