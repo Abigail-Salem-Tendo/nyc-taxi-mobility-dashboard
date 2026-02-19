@@ -370,6 +370,75 @@ function renderBoroughSpeedChart(labels, values) {
     });
 }
 
+async function loadTipAnalysis() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/tip-analysis");
+        const data = await response.json();
+
+        // Assuming backend structure:
+        // {
+        //   by_congestion: [],
+        //   by_distance: []
+        // }
+
+        const congestionLabels = data.by_congestion.map(item => item.congestion_level);
+        const congestionTips = data.by_congestion.map(item => item.tip_pct_of_fare);
+
+        const distanceLabels = data.by_distance.map(item => item.distance_category);
+        const distanceTips = data.by_distance.map(item => item.tip_pct_of_fare);
+
+        renderTipCongestionChart(congestionLabels, congestionTips);
+        renderTipDistanceChart(distanceLabels, distanceTips);
+
+    } catch (error) {
+        console.error("Error loading tip analysis:", error);
+    }
+}
+
+function renderTipCongestionChart(labels, values) {
+    const ctx = document.getElementById("tipCongestionChart").getContext("2d");
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Tip % of Fare (by Congestion)",
+                data: values
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+}
+
+function renderTipDistanceChart(labels, values) {
+    const ctx = document.getElementById("tipDistanceChart").getContext("2d");
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Tip % of Fare (by Distance)",
+                data: values
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+}
+
+
+
 
 
 
@@ -379,5 +448,6 @@ document.addEventListener("DOMContentLoaded", () => {
     renderRushHourCharts();
     loadDistanceEconomics();
     loadShortTripInefficiency();
-    lo
+    loadBoroughAnalysis();
+    loadTipAnalysis();
 });
