@@ -1,6 +1,14 @@
 # nyc-taxi-mobility-dashboard
 Summative assignment to demonstrate our ability to design and develop an enterprise-level fullstack application using real-world urban mobility datasets.
 
+## The system 
+ . cleans raw trip data 
+ . stores processed data in a database
+ . uses API endpoints to featch data from the database 
+ . supports front end dashboard for insights 
+
+
+
 ## Tech Stack
 - Database: MySQL (Star Schema)
 
@@ -28,5 +36,27 @@ Summative assignment to demonstrate our ability to design and develop an enterpr
     DB_USER=your_username
     DB_PASSWORD=your_password
     DB_NAME=nyc_mobility_data
+
    ```
+3. Run data cleaning 
+python3 clean_data.py
+
+4. run setup db
+python3 setupdb.py
+
+5. load database 
+python3 data_loader.py
+
+6. start the backend 
+python3 app.py
+
+
+### key insights 
+the dashboard enables analysis of 
+. peak hours vs efficiency 
+. Short trip and their congestion effects
+. Tipping as a quality signal
+. Passenger load hotspots
+
+
 
