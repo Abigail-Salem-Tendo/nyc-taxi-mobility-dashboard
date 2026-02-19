@@ -252,8 +252,7 @@ def borough_comparison():
 
 
 
-# function to count zones manually 
-
+#function to count zones manually 
 def count_zones_manual(zone_data):
     
     zone_counts = {}
@@ -266,8 +265,7 @@ def count_zones_manual(zone_data):
     
     return zone_counts
 
-
-# function to sort zones by count using selection sort
+#function to sort zones by count using selection sort
 def selection_sort_zones(zone_list):
    
     n = len(zone_list)
@@ -297,8 +295,6 @@ def get_zone_name_from_db(zone_id):
 # Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 @app.route('/api/top-pickup-zones', methods=['GET'])
 def top_pickup_zones():
-  
-   
     try:
        
         limit = request.args.get('limit', 10, type=int)
