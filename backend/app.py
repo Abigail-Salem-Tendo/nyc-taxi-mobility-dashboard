@@ -84,7 +84,38 @@ def trips_by_hour():
         'avg_fare': float(r.avg_fare) if r.avg_fare else 0
     } for r in results])
 
-
+#Endpoint about comparison between peak and off-peak hours
+@app.route('/api/peak-vs-offpeak')
+def peak_vs_offpeak():
+    results = db.session.query(
+        Tripdata.is_peak_hour,
+        func.count(Tripdata.trip_id).label('trip_count'),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label('avg_speed_mph'),
+        func.round(func.avg(Tripdata.fare_per_mile), 2).label('avg_fare_per_mile'),
+        func.round(func.avg(Tripdata.fare_amount), 2).label('avg_fare'),
+        func.round(func.avg(Tripdata.tip_amount), 2).label('avg_tip'),
+        func.round(func.avg(Tripdata.trip_duration_min), 1).label('avg_duration_min'),
+        func.round(func.avg(Tripdata.trip_distance), 2).label('avg_distance_miles'),
+        func.round(func.avg(Tripdata.passenger_count), 2).label('avg_passengers'),
+        func.round(func.sum(Tripdata.fare_amount), 2).label('total_revenue')
+    ).group_by(
+        Tripdata.is_peak_hour
+    ).order_by(
+        Tripdata.is_peak_hour
+    ).all()
+    
+    return jsonify([{
+        'is_peak_hour': r.is_peak_hour,
+        'trip_count': r.trip_count,
+        'avg_speed_mph': float(r.avg_speed_mph) if r.avg_speed_mph else 0,
+        'avg_fare_per_mile': float(r.avg_fare_per_mile) if r.avg_fare_per_mile else 0,
+        'avg_fare': float(r.avg_fare) if r.avg_fare else 0,
+        'avg_tip': float(r.avg_tip) if r.avg_tip else 0,
+        'avg_duration_min': float(r.avg_duration_min) if r.avg_duration_min else 0,
+        'avg_distance_miles': float(r.avg_distance_miles) if r.avg_distance_miles else 0,
+        'avg_passengers': float(r.avg_passengers) if r.avg_passengers else 0,
+        'total_revenue': float(r.total_revenue) if r.total_revenue else 0
+    } for r in results])
 
 # function to count zones manually without using pandas value_counts or groupby
 
