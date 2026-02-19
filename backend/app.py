@@ -117,7 +117,7 @@ def peak_vs_offpeak():
         'total_revenue': float(r.total_revenue) if r.total_revenue else 0
     } for r in results])
 
-
+#Trips by distance endpoint
 @app.route('/api/trips-by-distance', methods=['GET'])
 def trips_by_distance():
     borough = request.args.get('borough')
@@ -158,7 +158,7 @@ def trips_by_distance():
 
     return jsonify(data)
 
-# ENDPOINT 2
+#short trip ineffeciency endpoint
 @app.route('/api/short-trip-inefficiency', methods=['GET'])
 def short_trip_inefficiency():
     max_distance = request.args.get('max_distance', 1.0, type=float)
@@ -227,9 +227,9 @@ def borough_comparison():
     results = db.session.query(
         ZoneLookup.borough,
         func.count(Tripdata.trip_id).label("total_trips"),
-        func.avg(Tripdata.trip_distance).label("avg_distance"),
-        func.avg(Tripdata.fare_amount).label("avg_fare"),
-        func.avg(Tripdata.avg_speed_mph).label("avg_speed")
+        func.round(func.avg(Tripdata.trip_distance), 2).label("avg_distance"),
+        func.round(func.avg(Tripdata.fare_amount), 1).label("avg_fare"),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed")
     ).join(
         ZoneLookup, Tripdata.pulocation_id == ZoneLookup.location_id
     ).group_by(
