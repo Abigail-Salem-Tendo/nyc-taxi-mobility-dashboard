@@ -357,3 +357,30 @@ button {
 }
 
 
+/* ── 10. RESPONSIVE — MOBILE ────────────────────────────── */
+@media (max-width: 768px) {
+    .section {
+        margin: var(--space-md) var(--space-sm);
+        padding: var(--space-md);
+        border-radius: var(--radius-sm);
+    }
+
+    .navbar {
+        gap: var(--space-sm);
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .hero {
+        padding: var(--space-md) var(--space-sm);
+        background-attachment: scroll; /* Better on mobile */
+    }
+
+    .section-nav {
+        justify-content: center;
+    }
+}
