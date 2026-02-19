@@ -117,7 +117,7 @@ def peak_vs_offpeak():
         'total_revenue': float(r.total_revenue) if r.total_revenue else 0
     } for r in results])
 
-
+#Trips by distance endpoint
 @app.route('/api/trips-by-distance', methods=['GET'])
 def trips_by_distance():
     borough = request.args.get('borough')
@@ -158,19 +158,41 @@ def trips_by_distance():
 
     return jsonify(data)
 
-# ENDPOINT 2
+#short trip ineffeciency endpoint
 @app.route('/api/short-trip-inefficiency', methods=['GET'])
 def short_trip_inefficiency():
-    max_distance = request.args.get('max_distance', 1.0, type=float)
     borough = request.args.get('borough')
+    #Define inefficiency  category
+    inefficiency_category = case(
+        (Tripdata.trip_distance <= 0.5, 'Very Inefficient'),
+        (Tripdata.trip_distance <= 1.0, 'Inefficient'),
+        (Tripdata.trip_distance <= 2.0, 'Moderately Inefficient'),
+        else_='Acceptable (2+ miles)'
+    ).label("inefficiency_category")
+    # Query by category
+    category_query = db.session.query(
+        inefficiency_category,
+        func.count(Tripdata.trip_id).label("trip_count"),
+        func.round(func.avg(Tripdata.fare_amount), 2).label("avg_fare"),
+        func.round(func.avg(Tripdata.trip_duration_min), 1).label("avg_duration"),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed")
+    ).filter(Tripdata.trip_distance <= 2.0)
 
-    # Summary stats
+    if borough:
+        category_query = category_query.join(
+            ZoneLookup,
+            Tripdata.pulocation_id == ZoneLookup.location_id
+        ).filter(ZoneLookup.borough == borough)
+
+    category_results = category_query.group_by(inefficiency_category).all()
+
     summary_query = db.session.query(
         func.count(Tripdata.trip_id).label("short_trip_count"),
         func.round(func.avg(Tripdata.fare_amount), 2).label("avg_fare"),
         func.round(func.avg(Tripdata.trip_duration_min), 1).label("avg_duration"),
-        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed")
-    ).filter(Tripdata.trip_distance < max_distance)
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed"),
+        func.round(func.sum(Tripdata.fare_amount), 2).label("total_revenue")
+    ).filter(Tripdata.trip_distance <= 2.0)
 
     if borough:
         summary_query = summary_query.join(
@@ -188,7 +210,7 @@ def short_trip_inefficiency():
     ).join(
         Tripdata, Tripdata.pulocation_id == ZoneLookup.location_id
     ).filter(
-        Tripdata.trip_distance < max_distance
+        Tripdata.trip_distance <= 0.5
     )
 
     if borough:
@@ -202,7 +224,6 @@ def short_trip_inefficiency():
 
     return jsonify({
         "filters": {
-            "max_distance": max_distance,
             "borough": borough if borough else "All"
         },
         "summary": {
@@ -211,6 +232,16 @@ def short_trip_inefficiency():
             "avg_duration_min": float(summary.avg_duration) if summary.avg_duration else 0,
             "avg_speed_mph": float(summary.avg_speed) if summary.avg_speed else 0
         },
+        "by_category": [
+            {
+                "inefficiency_level": row.inefficiency_category,
+                "trip_count": int(row.trip_count),
+                "avg_fare": float(row.avg_fare) if row.avg_fare else 0,
+                "avg_duration_min": float(row.avg_duration) if row.avg_duration else 0,
+                "avg_speed_mph": float(row.avg_speed) if row.avg_speed else 0
+            }
+            for row in category_results
+        ],
         "top_pickup_zones": [
             {
                 "borough": z.borough,
@@ -227,9 +258,9 @@ def borough_comparison():
     results = db.session.query(
         ZoneLookup.borough,
         func.count(Tripdata.trip_id).label("total_trips"),
-        func.avg(Tripdata.trip_distance).label("avg_distance"),
-        func.avg(Tripdata.fare_amount).label("avg_fare"),
-        func.avg(Tripdata.avg_speed_mph).label("avg_speed")
+        func.round(func.avg(Tripdata.trip_distance), 2).label("avg_distance"),
+        func.round(func.avg(Tripdata.fare_amount), 1).label("avg_fare"),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed")
     ).join(
         ZoneLookup, Tripdata.pulocation_id == ZoneLookup.location_id
     ).group_by(
@@ -250,6 +281,154 @@ def borough_comparison():
     return jsonify(data)
 
 
+# Endpoint for tip analysis by congestion, peak hours, and distance categories
+@app.route('/api/tip-analysis')
+def tip_analysis():
+    # By congestion
+    by_congestion = db.session.query(
+        Tripdata.congestion_level,
+        func.count(Tripdata.trip_id).label('trip_count'),
+        func.round(func.avg(Tripdata.tip_amount), 2).label('avg_tip'),
+        func.round(
+            func.avg(
+                case(
+                    (Tripdata.fare_amount > 0, Tripdata.tip_amount / Tripdata.fare_amount * 100),
+                    else_=0
+                )
+            ),
+        2).label('tip_pct_of_fare'),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label('avg_speed_mph'),
+        func.round(func.avg(Tripdata.fare_per_mile), 2).label('avg_fare_per_mile')
+    ).group_by(
+        Tripdata.congestion_level
+    ).all()
+    
+    # By peak hour
+    by_peak = db.session.query(
+        Tripdata.is_peak_hour,
+        func.count(Tripdata.trip_id).label('trip_count'),
+        func.round(func.avg(Tripdata.tip_amount), 2).label('avg_tip'),
+        func.round(
+            func.avg(
+                case(
+                    (Tripdata.fare_amount > 0, Tripdata.tip_amount / Tripdata.fare_amount * 100),
+                    else_=0
+                )
+            ),
+        2).label('tip_pct_of_fare'),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label('avg_speed_mph'),
+        func.round(func.avg(Tripdata.fare_per_mile), 2).label('avg_fare_per_mile')
+    ).group_by(
+        Tripdata.is_peak_hour
+    ).order_by(
+        Tripdata.is_peak_hour
+    ).all()
+    
+    # By distance
+    distance_group = case(
+        (Tripdata.trip_distance < 2, 'Short (under 2 miles)'),
+        (Tripdata.trip_distance < 5, 'Medium (2-5 miles)'),
+        else_='Long (5+ miles)'
+    )
+    
+    by_distance = db.session.query(
+        distance_group.label('distance_group'),
+        func.count(Tripdata.trip_id).label('trip_count'),
+        func.round(func.avg(Tripdata.tip_amount), 2).label('avg_tip'),
+        func.round(
+            func.avg(
+                case(
+                    (Tripdata.fare_amount > 0, Tripdata.tip_amount / Tripdata.fare_amount * 100),
+                    else_=0
+                )
+            ),
+        2).label('tip_pct_of_fare'),
+        func.round(func.avg(Tripdata.trip_distance), 2).label('avg_distance_miles'),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label('avg_speed_mph'),
+        func.min(Tripdata.trip_distance).label('min_distance')
+    ).group_by(
+        distance_group
+    ).order_by(
+        func.min(Tripdata.trip_distance)
+    ).all()
+    
+    # Order congestion by High, Medium, Low
+    congestion_order = {'High': 0, 'Medium': 1, 'Low': 2}
+    by_congestion_sorted = sorted(
+        by_congestion, 
+        key=lambda x: congestion_order.get(x.congestion_level, 999)
+    )
+    
+    return jsonify({
+        'by_congestion': [{
+            'congestion_level': r.congestion_level,
+            'trip_count': r.trip_count,
+            'avg_tip': float(r.avg_tip) if r.avg_tip else 0,
+            'tip_pct_of_fare': float(r.tip_pct_of_fare) if r.tip_pct_of_fare else 0,
+            'avg_speed_mph': float(r.avg_speed_mph) if r.avg_speed_mph else 0,
+            'avg_fare_per_mile': float(r.avg_fare_per_mile) if r.avg_fare_per_mile else 0
+        } for r in by_congestion_sorted],
+        'by_peak_hour': [{
+            'is_peak_hour': r.is_peak_hour,
+            'trip_count': r.trip_count,
+            'avg_tip': float(r.avg_tip) if r.avg_tip else 0,
+            'tip_pct_of_fare': float(r.tip_pct_of_fare) if r.tip_pct_of_fare else 0,
+            'avg_speed_mph': float(r.avg_speed_mph) if r.avg_speed_mph else 0,
+            'avg_fare_per_mile': float(r.avg_fare_per_mile) if r.avg_fare_per_mile else 0
+        } for r in by_peak],
+        'by_distance': [{
+            'distance_group': r.distance_group,
+            'trip_count': r.trip_count,
+            'avg_tip': float(r.avg_tip) if r.avg_tip else 0,
+            'tip_pct_of_fare': float(r.tip_pct_of_fare) if r.tip_pct_of_fare else 0,
+            'avg_distance_miles': float(r.avg_distance_miles) if r.avg_distance_miles else 0,
+            'avg_speed_mph': float(r.avg_speed_mph) if r.avg_speed_mph else 0
+        } for r in by_distance]
+    })
+
+@app.route('/api/passenger-hotspots')
+def passenger_hotspots():
+    """
+    Top 20 zones by average passenger count.
+    """
+    results = db.session.query(
+        ZoneLookup.zone_name,
+        ZoneLookup.borough,
+        func.count(Tripdata.trip_id).label('trip_count'),
+        func.round(func.avg(Tripdata.passenger_count), 2).label('avg_passengers'),
+        func.round(func.sum(Tripdata.passenger_count), 0).label('total_passengers'),
+        func.round(
+            func.avg(case((Tripdata.is_peak_hour == 1, Tripdata.passenger_count), else_=None)),
+        2).label('peak_avg_passengers'),
+        func.round(
+            func.avg(case((Tripdata.is_peak_hour == 0, Tripdata.passenger_count), else_=None)),
+        2).label('offpeak_avg_passengers'),
+        func.round(func.avg(Tripdata.fare_per_mile), 2).label('avg_fare_per_mile'),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label('avg_speed_mph')
+    ).join(
+        ZoneLookup, Tripdata.pulocation_id == ZoneLookup.location_id
+    ).filter(
+        ZoneLookup.borough.notin_(['Unknown', 'N/A'])
+    ).group_by(
+        ZoneLookup.zone_name,
+        ZoneLookup.borough
+    ).having(
+        func.count(Tripdata.trip_id) > 100
+    ).order_by(
+        func.avg(Tripdata.passenger_count).desc()
+    ).limit(20).all()
+    
+    return jsonify([{
+        'zone_name': r.zone_name,
+        'borough': r.borough,
+        'trip_count': r.trip_count,
+        'avg_passengers': float(r.avg_passengers) if r.avg_passengers else 0,
+        'total_passengers': int(r.total_passengers) if r.total_passengers else 0,
+        'peak_avg_passengers': float(r.peak_avg_passengers) if r.peak_avg_passengers else 0,
+        'offpeak_avg_passengers': float(r.offpeak_avg_passengers) if r.offpeak_avg_passengers else 0,
+        'avg_fare_per_mile': float(r.avg_fare_per_mile) if r.avg_fare_per_mile else 0,
+        'avg_speed_mph': float(r.avg_speed_mph) if r.avg_speed_mph else 0
+    } for r in results])
 
 
 #function to count zones manually 
