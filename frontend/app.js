@@ -82,6 +82,8 @@ async function loadDropoffZones() {
 }
 
 // RUSH HOUR CHARTS
+let volumeChartInstance; //  global reference for toggle
+
 function renderRushHourCharts() {
     const hours = Array.from({length: 24}, (_, i) => i); // 0-23 hours
 
@@ -165,6 +167,21 @@ function renderRushHourCharts() {
                 }
             }
         }
+    });
+
+    // PEAK TOGGLE
+    const peakToggle = document.getElementById('peakToggle');
+    peakToggle.addEventListener('change', () => {
+        // Updating bar colors based on toggle
+        volumeChartInstance.data.datasets[0].backgroundColor = hours.map(h => 
+            peakToggle.checked ? (peakHours.includes(h) ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)') 
+                                : 'rgba(54, 162, 235, 0.7)'
+        );
+        volumeChartInstance.data.datasets[0].borderColor = hours.map(h => 
+            peakToggle.checked ? (peakHours.includes(h) ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)') 
+                                : 'rgba(54, 162, 235, 1)'
+        );
+        volumeChartInstance.update();
     });
 }
 
