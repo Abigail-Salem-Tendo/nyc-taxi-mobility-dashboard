@@ -27,6 +27,11 @@ Summative assignment to demonstrate our ability to design and develop an enterpr
    * MySQL 
    * A virtual environment (recommended)
 
+
+
+   * Install Dependencies
+    `pip install -r requirements.txt`
+
 2. Environment Configuration
    
     Create a .env file in the root directory and add your database credentials. This keeps your sensitive information secure.
@@ -39,16 +44,25 @@ Summative assignment to demonstrate our ability to design and develop an enterpr
 
    ```
 3. Run data cleaning 
-python3 clean_data.py
+  This processes the raw CSV file and removes outliers
+  . python3 clean_data.py
 
 4. run setup db
-python3 setupdb.py
+   Creates the Star Schema and Performance Indexes
+   . python3 setupdb.py
 
 5. load database 
-python3 data_loader.py
+   Loads the cleaned data files into MySQL.
+
+   . python3 data_loader.py
 
 6. start the backend 
-python3 app.py
+
+   . python3 app.py
+
+7. Launch Frontend
+  
+  Launch index.html in your server
 
 
 ### key insights 
@@ -59,34 +73,5 @@ the dashboard enables analysis of
 . Passenger load hotspots
 
 
-
-3. Install Dependencies
-    
-`pip install -r requirements.txt`
-
-## Execution Pipeline
-
-### Data Cleaning
-
-This processes the raw CSV file and removes outliers
-
-    python3 clean_data.py
-
-### Database Initialization
-Creates the Star Schema and Performance Indexes
-
-    python3 setupdb.py
-
-### Data Loading
-Loads the cleaned data files into MySQL.
-
-    python3 data_loader.py
-
-### Launch Backend
-
-    python3 app.py
-
-### Launch Frontend
-Launch index.html in your server
 
 
