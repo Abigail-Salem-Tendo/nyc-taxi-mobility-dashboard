@@ -79,4 +79,5 @@ the dashboard enables analysis of
 https://docs.google.com/spreadsheets/d/1SR6UiafecmBD-tgKm2JTfJJTtf6Z6PHrfZjww6iaPk8/edit?usp=sharing
 
 #### link to the video walk through: 
+https://drive.google.com/file/d/1nWrEJydg1odyLnPim86KvvHP9jOYr73Q/view?usp=sharing
 
