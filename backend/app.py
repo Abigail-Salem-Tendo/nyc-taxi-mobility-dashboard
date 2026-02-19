@@ -161,16 +161,38 @@ def trips_by_distance():
 #short trip ineffeciency endpoint
 @app.route('/api/short-trip-inefficiency', methods=['GET'])
 def short_trip_inefficiency():
-    max_distance = request.args.get('max_distance', 1.0, type=float)
     borough = request.args.get('borough')
-
-    # Summary stats
-    summary_query = db.session.query(
-        func.count(Tripdata.trip_id).label("short_trip_count"),
+    #Define inefficiency  category
+    inefficiency_category = case(
+        (Tripdata.trip_distance <= 0.5, 'Very Inefficient'),
+        (Tripdata.trip_distance <= 1.0, 'Inefficient'),
+        (Tripdata.trip_distance <= 2.0, 'Moderately Inefficient'),
+        else_='Acceptable (2+ miles)'
+    ).label("inefficiency_category")
+    # Query by category
+    category_query = db.session.query(
+        inefficiency_category,
+        func.count(Tripdata.trip_id).label("trip_count"),
         func.round(func.avg(Tripdata.fare_amount), 2).label("avg_fare"),
         func.round(func.avg(Tripdata.trip_duration_min), 1).label("avg_duration"),
         func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed")
-    ).filter(Tripdata.trip_distance < max_distance)
+    ).filter(Tripdata.trip_distance <= 2.0)
+
+    if borough:
+        category_query = category_query.join(
+            ZoneLookup,
+            Tripdata.pulocation_id == ZoneLookup.location_id
+        ).filter(ZoneLookup.borough == borough)
+
+    category_results = category_query.group_by(inefficiency_category).all()
+
+    summary_query = db.session.query(
+        func.count(Tripdata.trip_id).label("total_short_trips"),
+        func.round(func.avg(Tripdata.fare_amount), 2).label("avg_fare"),
+        func.round(func.avg(Tripdata.trip_duration_min), 1).label("avg_duration"),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed"),
+        func.round(func.sum(Tripdata.fare_amount), 2).label("total_revenue")
+    ).filter(Tripdata.trip_distance <= 2.0)
 
     if borough:
         summary_query = summary_query.join(
@@ -188,7 +210,7 @@ def short_trip_inefficiency():
     ).join(
         Tripdata, Tripdata.pulocation_id == ZoneLookup.location_id
     ).filter(
-        Tripdata.trip_distance < max_distance
+        Tripdata.trip_distance <= 0.5
     )
 
     if borough:
@@ -202,7 +224,6 @@ def short_trip_inefficiency():
 
     return jsonify({
         "filters": {
-            "max_distance": max_distance,
             "borough": borough if borough else "All"
         },
         "summary": {
@@ -211,6 +232,16 @@ def short_trip_inefficiency():
             "avg_duration_min": float(summary.avg_duration) if summary.avg_duration else 0,
             "avg_speed_mph": float(summary.avg_speed) if summary.avg_speed else 0
         },
+        "by_category": [
+            {
+                "inefficiency_level": row.inefficiency_category,
+                "trip_count": int(row.trip_count),
+                "avg_fare": float(row.avg_fare) if row.avg_fare else 0,
+                "avg_duration_min": float(row.avg_duration) if row.avg_duration else 0,
+                "avg_speed_mph": float(row.avg_speed) if row.avg_speed else 0
+            }
+            for row in category_results
+        ],
         "top_pickup_zones": [
             {
                 "borough": z.borough,
