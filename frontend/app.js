@@ -87,8 +87,12 @@ let volumeChartInstance; //  global reference for toggle
 function renderRushHourCharts() {
     const hours = Array.from({length: 24}, (_, i) => i); // 0-23 hours
 
-    // Volume Chart
+    const peakHours = [8, 18]; // 8am and 6pm
+
+    // BAR CHART: Volume
     const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+    const barColors = hours.map(h => (peakHours.includes(h) ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)'));
+    const borderColors = hours.map(h => (peakHours.includes(h) ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)'));
     new Chart(volumeCtx, {
         type: 'bar',
         data: {
@@ -96,8 +100,8 @@ function renderRushHourCharts() {
             datasets: [{
                 label: 'Trip Volume',
                 data: tripsByHour,
-                backgroundColor: hours.map(h => (h === 8 || h === 18 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)')),
-                borderColor: hours.map(h => (h === 8 || h === 18 ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)')),
+                backgroundColor: barColors,
+                borderColor: borderColors,
                 borderWidth: 1
             }]
         },
