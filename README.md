@@ -65,7 +65,7 @@ Summative assignment to demonstrate our ability to design and develop an enterpr
   Launch index.html in your server
 
 
-### key insights 
+### Key Insights 
 the dashboard enables analysis of 
 . peak hours vs efficiency 
 . Short trip and their congestion effects
