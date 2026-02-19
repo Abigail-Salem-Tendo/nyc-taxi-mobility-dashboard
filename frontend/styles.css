@@ -85,3 +85,13 @@ button {
 .insight-card p {
     margin: 8px 0;
 }
+.toggle-controls {
+    margin-top: 10px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    color: #111827;
+}
+
+.toggle-controls input {
+    margin-right: 5px;
+}
