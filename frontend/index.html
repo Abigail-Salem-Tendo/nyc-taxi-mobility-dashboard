@@ -12,6 +12,16 @@
         <p>System-wide statistics and algorithmic zone analysis</p>
     </header>
 
+    <nav class="navbar">
+        <a href="#statistics">Overview</a>
+        <a href="#rush-hour-analysis">Temporal</a>
+        <a href="#distance-economics">Distance</a>
+        <a href="#borough-analysis">Geography</a>
+        <a href="#tip-analysis">Behavior</a>
+        <a href="#algorithm-info">Algorithms</a>
+    </nav>
+    
+
     <!--STATISTICS SECTION -->
     <section id="statistics" class="section"></section>
         <h2>System Statistics</h2>
@@ -94,6 +104,24 @@
         <button onclick="loadAlgorithmInfo()">Show Algorithm Info</button>
         <div id="algorithmContainer"></div>
     </section>
+
+    <!-- DISTANCE ECONOMICS -->
+    <section id="distance-economics" class="section">
+        <h2>Insight 2: Distance & Short Trip Inefficiency</h2>
+
+        <div class="charts-grid">
+            <canvas id="distanceChart"></canvas>
+            <canvas id="inefficiencyChart"></canvas>
+        </div>
+
+        <div class="insight-card">
+            <p><strong>Observation:</strong> A large share of trips are short-distance.</p>
+            <p><strong>Risk:</strong> Short trips increase congestion while lowering system throughput.</p>
+            <p><strong>Policy Implication:</strong> Incentivizing pooled or micro-mobility alternatives may improve efficiency.</p>
+        </div>
+    </section>
+    
+
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="app.js"></script>
