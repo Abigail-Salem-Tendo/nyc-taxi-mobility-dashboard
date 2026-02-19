@@ -6,10 +6,10 @@
 /* ── 1. DESIGN TOKENS ───────────────────────────────────── */
 :root {
     /* Brand Colors */
-    --color-bg:             #0b1220;
-    --color-dashboard-bg:   rgba(0, 0, 0, 0.95);
+    --color-bg:             #1a2540;
+    --color-dashboard-bg:   rgba(0, 0, 0, 0.75);
     --color-content-bg:     rgba(243, 245, 248, 0.9);
-    --color-surface:        rgba(17, 24, 39, 0.75);
+    --color-surface:        rgba(17, 24, 39, 0.6);
     --color-border:         rgba(99, 102, 241, 0.25);
 
     /* Accent */
@@ -55,7 +55,7 @@ body {
     margin: 0;
     padding: 0;
     font-family: 'Georgia', 'Times New Roman', serif;
-    background: linear-gradient(135deg, #0b1220, #0f172a);
+    background: linear-gradient(135deg, #1a2540, #1e2d4a);
     color: var(--color-text);
     line-height: 1.6;
     overflow-x: hidden;
@@ -68,7 +68,7 @@ body {
     justify-content: center;
     gap: 35px;
     padding: var(--space-sm) var(--space-md);
-    background: rgba(11, 18, 32, 0.85);
+    background: rgba(26, 37, 64, 0.85);
     backdrop-filter: blur(10px);
     -webkit-backdrop-filter: blur(10px);
     border-bottom: 1px solid rgba(255, 255, 255, 0.08);
@@ -110,7 +110,7 @@ body {
     content: '';
     position: absolute;
     inset: 0;
-    background: linear-gradient(135deg, rgba(11, 18, 32, 0.6), rgba(11, 18, 32, 0.6));
+    background: linear-gradient(135deg, rgba(11, 18, 32, 0.35), rgba(11, 18, 32, 0.35));
     z-index: 1;
     animation: heroOverlay 20s ease-in-out infinite alternate;
 }
@@ -123,8 +123,8 @@ body {
 }
 
 @keyframes heroOverlay {
-    0%   { background: linear-gradient(135deg, rgba(11,18,32,0.5), rgba(11,18,32,0.5)); }
-    100% { background: linear-gradient(135deg, rgba(11,18,32,0.75), rgba(11,18,32,0.75)); }
+    0%   { background: linear-gradient(135deg, rgba(11,18,32,0.3), rgba(11,18,32,0.3)); }
+    100% { background: linear-gradient(135deg, rgba(11,18,32,0.5), rgba(11,18,32,0.5)); }
 }
 
 
@@ -177,9 +177,9 @@ body {
 /* Dashboard (dark) cards */
 .section.dashboard .stat-card,
 .section.dashboard .insight-card {
-    background: rgba(20, 20, 20, 0.7);
+    background: rgba(30, 35, 55, 0.7);
     color: #ffffff;
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.12);
     box-shadow: var(--shadow-accent);
 }
 
@@ -259,7 +259,7 @@ tr:hover {
 
 /* Dashboard table */
 .section.dashboard table {
-    background: rgba(20, 20, 20, 0.7);
+    background: rgba(30, 35, 55, 0.7);
     border: 1px solid rgba(255, 255, 255, 0.1);
     box-shadow: var(--shadow-accent);
     color: #ffffff;
