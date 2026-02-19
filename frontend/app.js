@@ -215,9 +215,169 @@ async function loadAlgorithmInfo() {
     });
 }
 
+//working on distance economics module
+async function loadDistanceEconomics() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/trips-by-distance");
+        const data = await response.json();
+
+        const labels = data.map(item => item.distance_category);
+        const tripCounts = data.map(item => item.trip_count);
+
+        const ctx = document.getElementById("distanceChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Trips by Distance Category",
+                    data: tripCounts
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Error loading distance data:", error);
+    }
+}
+
+
+async function loadShortTripInefficiency() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/short-trip-inefficiency");
+        const data = await response.json();
+
+        const labels = data.by_category.map(item => item.inefficiency_level);
+        const tripCounts = data.by_category.map(item => item.trip_count);
+
+        const ctx = document.getElementById("inefficiencyChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Trips by Inefficiency Level",
+                    data: tripCounts
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Error loading inefficiency data:", error);
+    }
+}
+
+async function loadShortTripInefficiency() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/short-trip-inefficiency");
+        const data = await response.json();
+
+        const labels = data.by_category.map(item => item.inefficiency_level);
+        const tripCounts = data.by_category.map(item => item.trip_count);
+
+        const ctx = document.getElementById("inefficiencyChart").getContext("2d");
+
+        new Chart(ctx, {
+            type: "bar",
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: "Trips by Inefficiency Level",
+                    data: tripCounts
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: {
+                    legend: { display: true }
+                }
+            }
+        });
+
+    } catch (error) {
+        console.error("Error loading inefficiency data:", error);
+    }
+}
+async function loadBoroughAnalysis() {
+    try {
+        const response = await fetch("http://127.0.0.1:5000/api/borough-comparison");
+        const data = await response.json();
+
+        const boroughs = data.map(item => item.borough);
+        const totalTrips = data.map(item => item.total_trips);
+        const avgSpeed = data.map(item => item.avg_speed);
+
+        renderBoroughTripsChart(boroughs, totalTrips);
+        renderBoroughSpeedChart(boroughs, avgSpeed);
+
+    } catch (error) {
+        console.error("Error loading borough data:", error);
+    }
+}
+
+function renderBoroughTripsChart(labels, values) {
+    const ctx = document.getElementById("boroughTripsChart").getContext("2d");
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Total Trips by Borough",
+                data: values
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+}
+function renderBoroughSpeedChart(labels, values) {
+    const ctx = document.getElementById("boroughSpeedChart").getContext("2d");
+
+    new Chart(ctx, {
+        type: "bar",
+        data: {
+            labels: labels,
+            datasets: [{
+                label: "Average Speed (mph)",
+                data: values
+            }]
+        },
+        options: {
+            responsive: true,
+            plugins: {
+                legend: { display: true }
+            }
+        }
+    });
+}
+
+
+
 
 // Auto-load statistics on page load
 document.addEventListener("DOMContentLoaded", () => {
     loadStatistics();
     renderRushHourCharts();
+    loadDistanceEconomics();
+    loadShortTripInefficiency();
+    lo
 });
