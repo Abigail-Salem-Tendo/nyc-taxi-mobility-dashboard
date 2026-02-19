@@ -1,6 +1,13 @@
 //Intializing frontend
 const API_BASE = "http://127.0.0.1:5000"; 
 
+// using dummy data as we await completion of some endpoints
+const tripsByHour = [50, 80, 120, 200, 250, 300, 280, 260, 220, 180, 150, 100, 80, 60, 50, 40, 30, 20, 10, 5, 5, 5, 5, 5];
+const avgSpeedByHour = [25, 23, 20, 18, 17, 16, 16, 17, 18, 19, 20, 22, 24, 25, 25, 26, 27, 28, 28, 29, 30, 30, 30, 30];
+const farePerMileByHour = [2.5, 2.4, 2.3, 2.2, 2.1, 2.0, 2.0, 2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.7, 2.8, 2.9, 3.0, 3.0, 3.1, 3.2, 3.2, 3.2, 3.2];
+
+
+
 //  LOAD STATISTICS
 async function loadStatistics() {
     const response = await fetch(`${API_BASE}/api/statistics`);
