@@ -168,7 +168,7 @@ def get_zone_name_from_db(zone_id):
 def trips_by_distance():
     borough = request.args.get('borough')
 
-    distance_category = case(a
+    distance_category = case(
         (Tripdata.trip_distance <= 2, "0-2"),
         (Tripdata.trip_distance <= 5, "2-5"),
         (Tripdata.trip_distance <= 10, "5-10"),
