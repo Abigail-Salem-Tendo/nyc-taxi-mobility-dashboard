@@ -86,7 +86,7 @@ def trips_by_hour():
 
 
 
-# function to count zones manually without using pandas value_counts or groupby
+# function to count zones manually 
 
 def count_zones_manual(zone_data):
     
@@ -107,15 +107,14 @@ def selection_sort_zones(zone_list):
     n = len(zone_list)
     
     for i in range(n):
-        # Find maximum in remaining unsorted portion
+    
         max_index = i
         
         for j in range(i + 1, n):
-            # Compare counts (second element in tuple)
+    
             if zone_list[j][1] > zone_list[max_index][1]:
                 max_index = j
-        
-        # Swap current position with maximum found
+
         zone_list[i], zone_list[max_index] = zone_list[max_index], zone_list[i]
     
     return zone_list
@@ -131,6 +130,7 @@ def get_zone_name_from_db(zone_id):
     except:
         return f"Zone {zone_id}"
     
+    
 # Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 
 @app.route('/api/top-pickup-zones', methods=['GET'])
@@ -138,31 +138,29 @@ def top_pickup_zones():
   
    
     try:
-        # Get limit parameter (default to 10, max 50)
+       
         limit = request.args.get('limit', 10, type=int)
         if limit < 1 or limit > 50:
             limit = 10
         
-        # Fetching list of zone IDs 
+        # Fetch list of zone IDs 
         trips = Tripdata.query.with_entities(Tripdata.pulocation_id).all()
-        
-        # Extract zone IDs into a simple list
         zone_ids = [trip.pulocation_id for trip in trips]
         total_trips = len(zone_ids)
         
-        # STEP 1: Count using MANUAL algorithm (no .value_counts())
+        # Count trip per zone
         zone_counts = count_zones_manual(zone_ids)
         
-        # STEP 2: Convert dictionary to list of tuples for sorting
+        # Convert dictionary to list of tuples for sorting
         zone_list = [(zone_id, count) for zone_id, count in zone_counts.items()]
         
-        # STEP 3: Sort using MANUAL selection sort (no .sort())
+        # sort using manual selection sort 
         sorted_zones = selection_sort_zones(zone_list)
         
-        # STEP 4: Get top N zones
+        # Get top zones based on limit
         top_zones = sorted_zones[:limit]
         
-        # format for a JSON response
+        # format JSON response
         result_data = []
         for rank, (zone_id, count) in enumerate(top_zones, start=1):
             zone_name = get_zone_name_from_db(zone_id)
@@ -198,31 +196,30 @@ def top_pickup_zones():
 def top_dropoff_zones():
    
     try:
-        # Get limit parameter (default to 10, max 50)
         limit = request.args.get('limit', 10, type=int)
         if limit < 1 or limit > 50:
             limit = 10
         
-        # Fetch all dropoff zone IDs using ORM
+        # get list of dropoff zone ids from database
         trips = Tripdata.query.with_entities(Tripdata.dolocation_id).all()
         
-        # Extract zone IDs into a simple list
+        # extract zone ids from query result
         zone_ids = [trip.dolocation_id for trip in trips]
+
+        #calculate total trips 
         total_trips = len(zone_ids)
         
-        # STEP 1: Count using MANUAL algorithm
+        # count trips per zone using manual counting algorithm
         zone_counts = count_zones_manual(zone_ids)
-        
-        # STEP 2: Convert to list for sorting
+
         zone_list = [(zone_id, count) for zone_id, count in zone_counts.items()]
         
-        # STEP 3: Sort using MANUAL selection sort
         sorted_zones = selection_sort_zones(zone_list)
         
-        # STEP 4: Get top N zones
+        # get top zones based on limit
         top_zones = sorted_zones[:limit]
-        
-        # STEP 5: Format response
+
+        # format JSON response
         result_data = []
         for rank, (zone_id, count) in enumerate(top_zones, start=1):
             zone_name = get_zone_name_from_db(zone_id)
@@ -253,6 +250,9 @@ def top_dropoff_zones():
             'error': str(e)
         }), 500
 
+    
+
+ # implemented an endpoint to explain algorithms used in the top pickup and dropoff zones endpoints.
 
 @app.route('/api/algorithm-info', methods=['GET'])
 def algorithm_info():
@@ -264,15 +264,12 @@ def algorithm_info():
             {
                 'name': 'Manual Counting Algorithm',
                 'purpose': 'Count trips per zone',
-                'time_complexity': 'O(n) this iterates through all trips once',
-                'space_complexity': 'O(m) this stores only unique zones and their counts',
+                'time_complexity': 'O(n) iterates through all trips once',
                 'pseudo_code': [
                     '1. Create empty dictionary zone_counts',
                     '2. For each zone_id in dataset:',
-                    '   a. If zone_id exists in dictionary:',
-                    '      - Increment count by 1',
-                    '   b. Else:',
-                    '      - Add zone_id with count = 1',
+                    '  - if we have already seen the zone_id, add 1 to its count',
+                    '  - if we have seen it yet , add it to the dictionary and set its count to 1',
                     '3. Return zone_counts dictionary'
                 ],
             },
@@ -280,46 +277,24 @@ def algorithm_info():
                 'name': 'Selection Sort',
                 'purpose': 'Sort zones by trip count from highest to lowest',
                 'time_complexity': 'O(n²) uses nestd loops to find maximum value for each position',
-                'space_complexity': 'O(1) sorts in place without extra data structures',
                 'pseudo_code': [
-                    '1. For each position i from 0 to n-1:',
-                    '   a. Set max_index = i (assume current has maximum)',
-                    '   b. For each position j from i+1 to n:',
-                    '      - If value at j > value at max_index:',
-                    '        * Update max_index = j',
-                    '   c. Swap element at position i with element at max_index',
-                    '2. Return sorted list'
+                    '1. look at every position i',
+                    '2. assume that i is the max (the biggest)',
+                    '3. look at numbers after i ',
+                    '4. if you find a bigger number than current max, remember its position',
+                    '5. Swap current position i with max index (the biggest number found)',
+                    '6. Return sorted list'
                 ],
-                'how_it_works': 'Repeatedly finds the maximum element and moves it to the front',
+                
     
             }
         ],
         'implementation_details': {
-            'no_libraries_used': [
-                'pandas .groupby()',
-                'pandas .value_counts()',
-                'built-in sort() or sorted()',
-                'collections.Counter',
-                'heapq'
-            ],
-            'only_uses': [
-                'Basic Python dictionaries',
-                'Lists',
-                'For loops',
-                'Comparisons'
-            ],
-           
+            'no_libraries_used': 'The algorithms were implemented manually without using any built-in sorting or counting functions.'
         },
         'real_world_application': {
             'problem': 'Which taxi zones are busiest?',
-            'solution': 'Use algorithms to identify high-demand zones',
-            'benefit': 'City planners can optimize taxi dispatch and reduce passenger wait times',
-            'use_cases': [
-                'Identify zones needing more taxi coverage',
-                'Plan taxi dispatch routes efficiently',
-                'Analyze pickup vs dropoff patterns',
-                'Improve urban mobility planning'
-            ]
+            'solution': 'use algorithms to identify high-demand zones so as to optimize taxi dispatch and urban planning',
         },
         'endpoints_using_algorithms': {
             'pickup_zones': '/api/top-pickup-zones',
