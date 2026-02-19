@@ -56,8 +56,33 @@ def get_statistics():
     except Exception as e:
         return jsonify({'status': 'Failure', 'message': f'Error retrieving statistics: {str(e)}'}), 500
     
-
-
+# Endpoint to get trip statistics by hour of day
+@app.route('/api/trips-by-hour')
+def trips_by_hour():
+    results = db.session.query(
+        Tripdata.hour_of_day,
+        Tripdata.is_peak_hour,
+        func.count(Tripdata.trip_id).label('trip_count'),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label('avg_speed_mph'),
+        func.round(func.avg(Tripdata.fare_per_mile), 2).label('avg_fare_per_mile'),
+        func.round(func.avg(Tripdata.trip_duration_min), 1).label('avg_duration_min'),
+        func.round(func.avg(Tripdata.fare_amount), 2).label('avg_fare')
+    ).group_by(
+        Tripdata.hour_of_day,
+        Tripdata.is_peak_hour
+    ).order_by(
+        Tripdata.hour_of_day
+    ).all()
+    
+    return jsonify([{
+        'hour_of_day': r.hour_of_day,
+        'is_peak_hour': r.is_peak_hour,
+        'trip_count': r.trip_count,
+        'avg_speed_mph': float(r.avg_speed_mph) if r.avg_speed_mph else 0,
+        'avg_fare_per_mile': float(r.avg_fare_per_mile) if r.avg_fare_per_mile else 0,
+        'avg_duration_min': float(r.avg_duration_min) if r.avg_duration_min else 0,
+        'avg_fare': float(r.avg_fare) if r.avg_fare else 0
+    } for r in results])
 
 
 
