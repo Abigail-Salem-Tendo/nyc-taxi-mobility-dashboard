@@ -113,11 +113,8 @@ def clean_data_simple(input_file, zone_lookup_file):
         chunk = chunk[chunk['trip_distance'] > 0]
         issues['zero_distance'] = issues['zero_distance'] + (before - len(chunk))
 
-        # Note: NOT capping maximum distance
-        # Reason: Round trips or long-distance trips are valid for city planning
-
         # Validate passenger count
-        # NYC taxis have max 6 passengers, minimum 1
+        # Assuming NYC taxis have max 6 passengers, minimum 1
         before = len(chunk)
         chunk = chunk[(chunk['passenger_count'] >= 1) & (chunk['passenger_count'] <= 6)]
         issues['invalid_passengers'] = issues['invalid_passengers'] + (before - len(chunk))
@@ -128,10 +125,6 @@ def clean_data_simple(input_file, zone_lookup_file):
         chunk = chunk[chunk['fare_amount'] > 0]
         issues['invalid_fare'] = issues['invalid_fare'] + (before - len(chunk))
 
-        # Note: NOT capping maximum fare
-        # Reason: Long trips can legitimately have high fares
-
-        # SValidate location IDs
         # Exclude Zone 264 (Unknown) and Zone 265 (Outside of NYC)
         # These zones are invalid for NYC city planning analysis
         before = len(chunk)
@@ -251,6 +244,6 @@ def clean_data_simple(input_file, zone_lookup_file):
 # RUN THE SCRIPT
 if __name__ == "__main__":
     clean_data_simple(
-        input_file="yellow_tripdata_2019-01.csv",
-        zone_lookup_file="taxi_zone_lookup.csv"
+        input_file=r"C:\Users\user\Documents\Summative\raw\yellow_tripdata_2019-01.csv",
+        zone_lookup_file=r"C:\Users\user\Documents\Summative\raw\taxi_zone_lookup.csv"
     )
