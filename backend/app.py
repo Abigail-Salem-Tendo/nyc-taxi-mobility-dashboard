@@ -386,6 +386,51 @@ def tip_analysis():
         } for r in by_distance]
     })
 
+@app.route('/api/passenger-hotspots')
+def passenger_hotspots():
+    """
+    Top 20 zones by average passenger count.
+    """
+    results = db.session.query(
+        ZoneLookup.zone_name,
+        ZoneLookup.borough,
+        func.count(Tripdata.trip_id).label('trip_count'),
+        func.round(func.avg(Tripdata.passenger_count), 2).label('avg_passengers'),
+        func.round(func.sum(Tripdata.passenger_count), 0).label('total_passengers'),
+        func.round(
+            func.avg(case((Tripdata.is_peak_hour == 1, Tripdata.passenger_count), else_=None)),
+        2).label('peak_avg_passengers'),
+        func.round(
+            func.avg(case((Tripdata.is_peak_hour == 0, Tripdata.passenger_count), else_=None)),
+        2).label('offpeak_avg_passengers'),
+        func.round(func.avg(Tripdata.fare_per_mile), 2).label('avg_fare_per_mile'),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label('avg_speed_mph')
+    ).join(
+        ZoneLookup, Tripdata.pulocation_id == ZoneLookup.location_id
+    ).filter(
+        ZoneLookup.borough.notin_(['Unknown', 'N/A'])
+    ).group_by(
+        ZoneLookup.zone_name,
+        ZoneLookup.borough
+    ).having(
+        func.count(Tripdata.trip_id) > 100
+    ).order_by(
+        func.avg(Tripdata.passenger_count).desc()
+    ).limit(20).all()
+    
+    return jsonify([{
+        'zone_name': r.zone_name,
+        'borough': r.borough,
+        'trip_count': r.trip_count,
+        'avg_passengers': float(r.avg_passengers) if r.avg_passengers else 0,
+        'total_passengers': int(r.total_passengers) if r.total_passengers else 0,
+        'peak_avg_passengers': float(r.peak_avg_passengers) if r.peak_avg_passengers else 0,
+        'offpeak_avg_passengers': float(r.offpeak_avg_passengers) if r.offpeak_avg_passengers else 0,
+        'avg_fare_per_mile': float(r.avg_fare_per_mile) if r.avg_fare_per_mile else 0,
+        'avg_speed_mph': float(r.avg_speed_mph) if r.avg_speed_mph else 0
+    } for r in results])
+
+
 # function to count zones manually 
 
 def count_zones_manual(zone_data):
