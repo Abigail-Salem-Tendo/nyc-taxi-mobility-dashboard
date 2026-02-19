@@ -117,52 +117,6 @@ def peak_vs_offpeak():
         'total_revenue': float(r.total_revenue) if r.total_revenue else 0
     } for r in results])
 
-# function to count zones manually 
-
-def count_zones_manual(zone_data):
-    
-    zone_counts = {}
-    
-    for zone_id in zone_data:
-        if zone_id in zone_counts:
-            zone_counts[zone_id] = zone_counts[zone_id] + 1
-        else:
-            zone_counts[zone_id] = 1
-    
-    return zone_counts
-
-# function to sort zones by count using selection sort
-
-def selection_sort_zones(zone_list):
-   
-    n = len(zone_list)
-    
-    for i in range(n):
-    
-        max_index = i
-        
-        for j in range(i + 1, n):
-    
-            if zone_list[j][1] > zone_list[max_index][1]:
-                max_index = j
-
-        zone_list[i], zone_list[max_index] = zone_list[max_index], zone_list[i]
-    
-    return zone_list
-
-
-def get_zone_name_from_db(zone_id):
-  
-    try:
-        zone = ZoneLookup.query.get(zone_id)
-        if zone:
-            return f"{zone.zone_name}, {zone.borough}"
-        return f"Zone {zone_id}"
-    except:
-        return f"Zone {zone_id}"
-    
-    
-# Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 
 @app.route('/api/trips-by-distance', methods=['GET'])
 def trips_by_distance():
@@ -294,6 +248,53 @@ def borough_comparison():
             "avg_speed_mph": float(row.avg_speed) if row.avg_speed else 0
         })
     return jsonify(data)
+
+
+
+
+# function to count zones manually 
+
+def count_zones_manual(zone_data):
+    
+    zone_counts = {}
+    
+    for zone_id in zone_data:
+        if zone_id in zone_counts:
+            zone_counts[zone_id] = zone_counts[zone_id] + 1
+        else:
+            zone_counts[zone_id] = 1
+    
+    return zone_counts
+
+
+# function to sort zones by count using selection sort
+def selection_sort_zones(zone_list):
+   
+    n = len(zone_list)
+    
+    for i in range(n):
+        max_index = i
+        for j in range(i + 1, n):
+    
+            if zone_list[j][1] > zone_list[max_index][1]:
+                max_index = j
+
+        zone_list[i], zone_list[max_index] = zone_list[max_index], zone_list[i]
+    return zone_list
+
+
+def get_zone_name_from_db(zone_id):
+  
+    try:
+        zone = ZoneLookup.query.get(zone_id)
+        if zone:
+            return f"{zone.zone_name}, {zone.borough}"
+        return f"Zone {zone_id}"
+    except:
+        return f"Zone {zone_id}"
+    
+
+# Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 @app.route('/api/top-pickup-zones', methods=['GET'])
 def top_pickup_zones():
   
@@ -413,7 +414,7 @@ def top_dropoff_zones():
 
     
 
- # implemented an endpoint to explain algorithms used in the top pickup and dropoff zones endpoints.
+ # implemented an endpoint to explain thealgorithms used in the top pickup and dropoff zones endpoints.
 
 @app.route('/api/algorithm-info', methods=['GET'])
 def algorithm_info():
@@ -426,6 +427,7 @@ def algorithm_info():
                 'name': 'Manual Counting Algorithm',
                 'purpose': 'Count trips per zone',
                 'time_complexity': 'O(n) iterates through all trips once',
+                'space_complexity': 'O(m) where m is number of unique zones stored in dictionary',
                 'pseudo_code': [
                     '1. Create empty dictionary zone_counts',
                     '2. For each zone_id in dataset:',
@@ -437,7 +439,8 @@ def algorithm_info():
             {
                 'name': 'Selection Sort',
                 'purpose': 'Sort zones by trip count from highest to lowest',
-                'time_complexity': 'O(n²) uses nestd loops to find maximum value for each position',
+                'time_complexity': 'O(n²) uses nested loops to find maximum value for each position',
+                'space_complexity': 'O(1) sorts in place without needing extra space',
                 'pseudo_code': [
                     '1. look at every position i',
                     '2. assume that i is the max (the biggest)',
@@ -450,17 +453,7 @@ def algorithm_info():
     
             }
         ],
-        'implementation_details': {
-            'no_libraries_used': 'The algorithms were implemented manually without using any built-in sorting or counting functions.'
-        },
-        'real_world_application': {
-            'problem': 'Which taxi zones are busiest?',
-            'solution': 'use algorithms to identify high-demand zones so as to optimize taxi dispatch and urban planning',
-        },
-        'endpoints_using_algorithms': {
-            'pickup_zones': '/api/top-pickup-zones',
-            'dropoff_zones': '/api/top-dropoff-zones'
-        }
+      
     })
 
 if __name__ == '__main__':
