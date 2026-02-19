@@ -187,7 +187,7 @@ def short_trip_inefficiency():
     category_results = category_query.group_by(inefficiency_category).all()
 
     summary_query = db.session.query(
-        func.count(Tripdata.trip_id).label("total_short_trips"),
+        func.count(Tripdata.trip_id).label("short_trip_count"),
         func.round(func.avg(Tripdata.fare_amount), 2).label("avg_fare"),
         func.round(func.avg(Tripdata.trip_duration_min), 1).label("avg_duration"),
         func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed"),
