@@ -81,6 +81,94 @@ async function loadDropoffZones() {
     });
 }
 
+// RUSH HOUR CHARTS
+function renderRushHourCharts() {
+    const hours = Array.from({length: 24}, (_, i) => i); // 0-23 hours
+
+    // Volume Chart
+    const volumeCtx = document.getElementById('volumeChart').getContext('2d');
+    new Chart(volumeCtx, {
+        type: 'bar',
+        data: {
+            labels: hours,
+            datasets: [{
+                label: 'Trip Volume',
+                data: tripsByHour,
+                backgroundColor: hours.map(h => (h === 8 || h === 18 ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)')),
+                borderColor: hours.map(h => (h === 8 || h === 18 ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)')),
+                borderWidth: 1
+            }]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Trip Volume by Hour',
+                    font: { size: 16 }
+                },
+                legend: { display: false }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Hour of Day' } },
+                y: { title: { display: true, text: 'Trips' }, beginAtZero: true }
+            }
+        }
+    });
+
+    // Efficiency Chart (Avg Speed & Fare per Mile)
+    const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+    new Chart(efficiencyCtx, {
+        type: 'line',
+        data: {
+            labels: hours,
+            datasets: [
+                {
+                    label: 'Avg Speed (mph)',
+                    data: avgSpeedByHour,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    yAxisID: 'ySpeed',
+                    tension: 0.3
+                },
+                {
+                    label: 'Fare per Mile ($)',
+                    data: farePerMileByHour,
+                    borderColor: 'rgba(255, 206, 86, 1)',
+                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
+                    yAxisID: 'yFare',
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            plugins: {
+                title: {
+                    display: true,
+                    text: 'Efficiency by Hour',
+                    font: { size: 16 }
+                }
+            },
+            scales: {
+                x: { title: { display: true, text: 'Hour of Day' } },
+                ySpeed: {
+                    type: 'linear',
+                    position: 'left',
+                    title: { display: true, text: 'Avg Speed (mph)' },
+                    beginAtZero: true
+                },
+                yFare: {
+                    type: 'linear',
+                    position: 'right',
+                    title: { display: true, text: 'Fare per Mile ($)' },
+                    beginAtZero: true,
+                    grid: { drawOnChartArea: false } // prevents overlap
+                }
+            }
+        }
+    });
+}
+
+
 
 // ALGORITHM INFO 
 async function loadAlgorithmInfo() {
@@ -107,4 +195,5 @@ async function loadAlgorithmInfo() {
 // Auto-load statistics on page load
 document.addEventListener("DOMContentLoaded", () => {
     loadStatistics();
+    renderRushHourCharts();
 });
