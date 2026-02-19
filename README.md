@@ -60,3 +60,33 @@ the dashboard enables analysis of
 
 
 
+3. Install Dependencies
+    
+`pip install -r requirements.txt`
+
+## Execution Pipeline
+
+### Data Cleaning
+
+This processes the raw CSV file and removes outliers
+
+    python3 clean_data.py
+
+### Database Initialization
+Creates the Star Schema and Performance Indexes
+
+    python3 setupdb.py
+
+### Data Loading
+Loads the cleaned data files into MySQL.
+
+    python3 data_loader.py
+
+### Launch Backend
+
+    python3 app.py
+
+### Launch Frontend
+Launch index.html in your server
+
+
