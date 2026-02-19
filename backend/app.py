@@ -283,7 +283,7 @@ def top_dropoff_zones():
 
     
 
- # implemented an endpoint to explain algorithms used in the top pickup and dropoff zones endpoints.
+ # implemented an endpoint to explain thealgorithms used in the top pickup and dropoff zones endpoints.
 
 @app.route('/api/algorithm-info', methods=['GET'])
 def algorithm_info():
@@ -296,6 +296,7 @@ def algorithm_info():
                 'name': 'Manual Counting Algorithm',
                 'purpose': 'Count trips per zone',
                 'time_complexity': 'O(n) iterates through all trips once',
+                'space_complexity': 'O(m) where m is number of unique zones stored in dictionary',
                 'pseudo_code': [
                     '1. Create empty dictionary zone_counts',
                     '2. For each zone_id in dataset:',
@@ -307,7 +308,8 @@ def algorithm_info():
             {
                 'name': 'Selection Sort',
                 'purpose': 'Sort zones by trip count from highest to lowest',
-                'time_complexity': 'O(n²) uses nestd loops to find maximum value for each position',
+                'time_complexity': 'O(n²) uses nested loops to find maximum value for each position',
+                'space_complexity': 'O(1) sorts in place without needing extra space',
                 'pseudo_code': [
                     '1. look at every position i',
                     '2. assume that i is the max (the biggest)',
@@ -320,17 +322,7 @@ def algorithm_info():
     
             }
         ],
-        'implementation_details': {
-            'no_libraries_used': 'The algorithms were implemented manually without using any built-in sorting or counting functions.'
-        },
-        'real_world_application': {
-            'problem': 'Which taxi zones are busiest?',
-            'solution': 'use algorithms to identify high-demand zones so as to optimize taxi dispatch and urban planning',
-        },
-        'endpoints_using_algorithms': {
-            'pickup_zones': '/api/top-pickup-zones',
-            'dropoff_zones': '/api/top-dropoff-zones'
-        }
+      
     })
 
 if __name__ == '__main__':
