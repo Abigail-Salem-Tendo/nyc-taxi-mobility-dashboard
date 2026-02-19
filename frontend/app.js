@@ -176,7 +176,10 @@ function renderRushHourCharts() {
     // PEAK TOGGLE
     const peakToggle = document.getElementById('peakToggle');
     peakToggle.addEventListener('change', () => {
+        console.log("peak toggle clicked !")
         // Updating bar colors based on toggle
+
+        //error below on data coz of scope. will return
         volumeChartInstance.data.datasets[0].backgroundColor = hours.map(h => 
             peakToggle.checked ? (peakHours.includes(h) ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)') 
                                 : 'rgba(54, 162, 235, 0.7)'
