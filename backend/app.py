@@ -117,52 +117,6 @@ def peak_vs_offpeak():
         'total_revenue': float(r.total_revenue) if r.total_revenue else 0
     } for r in results])
 
-# function to count zones manually 
-
-def count_zones_manual(zone_data):
-    
-    zone_counts = {}
-    
-    for zone_id in zone_data:
-        if zone_id in zone_counts:
-            zone_counts[zone_id] = zone_counts[zone_id] + 1
-        else:
-            zone_counts[zone_id] = 1
-    
-    return zone_counts
-
-# function to sort zones by count using selection sort
-
-def selection_sort_zones(zone_list):
-   
-    n = len(zone_list)
-    
-    for i in range(n):
-    
-        max_index = i
-        
-        for j in range(i + 1, n):
-    
-            if zone_list[j][1] > zone_list[max_index][1]:
-                max_index = j
-
-        zone_list[i], zone_list[max_index] = zone_list[max_index], zone_list[i]
-    
-    return zone_list
-
-
-def get_zone_name_from_db(zone_id):
-  
-    try:
-        zone = ZoneLookup.query.get(zone_id)
-        if zone:
-            return f"{zone.zone_name}, {zone.borough}"
-        return f"Zone {zone_id}"
-    except:
-        return f"Zone {zone_id}"
-    
-    
-# Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 
 @app.route('/api/trips-by-distance', methods=['GET'])
 def trips_by_distance():
@@ -293,6 +247,53 @@ def borough_comparison():
             "avg_speed_mph": float(row.avg_speed) if row.avg_speed else 0
         })
     return jsonify(data)
+
+
+
+
+# function to count zones manually 
+
+def count_zones_manual(zone_data):
+    
+    zone_counts = {}
+    
+    for zone_id in zone_data:
+        if zone_id in zone_counts:
+            zone_counts[zone_id] = zone_counts[zone_id] + 1
+        else:
+            zone_counts[zone_id] = 1
+    
+    return zone_counts
+
+
+# function to sort zones by count using selection sort
+def selection_sort_zones(zone_list):
+   
+    n = len(zone_list)
+    
+    for i in range(n):
+        max_index = i
+        for j in range(i + 1, n):
+    
+            if zone_list[j][1] > zone_list[max_index][1]:
+                max_index = j
+
+        zone_list[i], zone_list[max_index] = zone_list[max_index], zone_list[i]
+    return zone_list
+
+
+def get_zone_name_from_db(zone_id):
+  
+    try:
+        zone = ZoneLookup.query.get(zone_id)
+        if zone:
+            return f"{zone.zone_name}, {zone.borough}"
+        return f"Zone {zone_id}"
+    except:
+        return f"Zone {zone_id}"
+    
+
+# Algorithm endpoints for top pickup and dropoff zones using manual counting and selection sort
 @app.route('/api/top-pickup-zones', methods=['GET'])
 def top_pickup_zones():
   
