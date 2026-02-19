@@ -1,232 +1,359 @@
 /* =========================================================
-   DESIGN SYSTEM & COLORS
+   NYC TAXI MOBILE DASHBOARD — DESIGN SYSTEM
+   Restructured & Enhanced CSS
 ========================================================= */
 
+/* ── 1. DESIGN TOKENS ───────────────────────────────────── */
 :root {
-    --color-bg: #0b1220;
-    --color-surface: rgba(17,24,39,0.75);
-    --color-border: rgba(99,102,241,0.25);
+    /* Brand Colors */
+    --color-bg:             #0b1220;
+    --color-dashboard-bg:   rgba(0, 0, 0, 0.95);
+    --color-content-bg:     rgba(243, 245, 248, 0.9);
+    --color-surface:        rgba(17, 24, 39, 0.75);
+    --color-border:         rgba(99, 102, 241, 0.25);
 
-    --color-accent: #6366f1;
-    --color-accent-hover: #a78bfa;
+    /* Accent */
+    --color-accent:         #6366f1;
+    --color-accent-hover:   #a78bfa;
+    --color-accent-glow:    rgba(99, 102, 241, 0.4);
 
-    --color-text: #e5e7eb;
-    --color-text-muted: #9ca3af;
+    /* Taxi Yellow */
+    --color-taxi:           #fbbf24;
+    --color-taxi-light:     #fcd34d;
+    --color-taxi-glow:      rgba(251, 191, 36, 0.3);
 
-    --space-sm: 12px;
-    --space-md: 20px;
-    --space-lg: 40px;
+    /* Text */
+    --color-text:           #e5e7eb;
+    --color-text-muted:     #9ca3af;
+    --color-text-dark:      #1f2937;
+
+    /* Spacing */
+    --space-xs:  8px;
+    --space-sm:  12px;
+    --space-md:  20px;
+    --space-lg:  40px;
+
+    /* Shape */
+    --radius-sm: 10px;
     --radius-lg: 18px;
+    --radius-pill: 25px;
 
-    --shadow-soft: 0 10px 30px rgba(0,0,0,0.3);
+    /* Shadows */
+    --shadow-soft:    0 10px 30px rgba(0, 0, 0, 0.3);
+    --shadow-accent:  0 0 15px rgba(99, 102, 241, 0.3);
+    --shadow-taxi:    0 4px 20px rgba(251, 191, 36, 0.25);
 }
 
-/* =========================================================
-   GLOBAL UPDATES
-========================================================= */
+
+/* ── 2. RESET & GLOBAL ──────────────────────────────────── */
+*, *::before, *::after {
+    box-sizing: border-box;
+    transition: all 0.4s ease;
+}
 
 body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Georgia', 'Times New Roman', serif;
     background: linear-gradient(135deg, #0b1220, #0f172a);
-    font-family: 'Arial', sans-serif;
     color: var(--color-text);
     line-height: 1.6;
     overflow-x: hidden;
 }
 
-* {
-    box-sizing: border-box;
-    transition: all 0.4s ease;
-}
 
-/* =========================================================
-   HERO WITH ANIMATED BACKGROUND
-========================================================= */
-
-.hero {
-    position: relative;
-    padding: var(--space-lg) var(--space-md);
-    text-align: center;
-    overflow: hidden;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-
-    background: url("images/nyc.jpg") center/cover no-repeat fixed;
-}
-
-.hero::before {
-    content: '';
-    position: absolute;
-    top:0; left:0; right:0; bottom:0;
-    background: linear-gradient(135deg, rgba(11,18,32,0.6), rgba(11,18,32,0.6));
-    z-index: 1;
-    animation: heroOverlay 20s ease-in-out infinite alternate;
-}
-
-.hero h1, .hero p {
-    position: relative;
-    z-index: 2;
-    text-shadow: 0 2px 15px rgba(0,0,0,0.7);
-}
-
-@keyframes heroOverlay {
-    0% {background: linear-gradient(135deg, rgba(11,18,32,0.5), rgba(11,18,32,0.5));}
-    100% {background: linear-gradient(135deg, rgba(11,18,32,0.7), rgba(11,18,32,0.7));}
-}
-
-/* =========================================================
-   NAVBAR
-========================================================= */
-
+/* ── 3. NAVBAR ──────────────────────────────────────────── */
 .navbar {
     display: flex;
     justify-content: center;
     gap: 35px;
-    padding: var(--space-sm);
-    background: rgba(11,18,32,0.8);
-    backdrop-filter: blur(8px);
+    padding: var(--space-sm) var(--space-md);
+    background: rgba(11, 18, 32, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 4px 25px rgba(0, 0, 0, 0.5);
     position: sticky;
     top: 0;
     z-index: 1000;
-    border-bottom: 1px solid rgba(255,255,255,0.08);
-    box-shadow: 0 4px 25px rgba(0,0,0,0.5);
 }
 
 .navbar a {
     text-decoration: none;
     color: var(--color-text-muted);
     font-weight: 600;
-    padding: 6px 12px;
-    border-radius: 12px;
-    transition: all 0.3s ease;
+    font-size: 14px;
+    padding: 6px 14px;
+    border-radius: var(--radius-pill);
 }
 
 .navbar a:hover {
-    color: white;
-    background: linear-gradient(120deg, #6366f1, #a78bfa);
-    box-shadow: 0 4px 15px rgba(99,102,241,0.7);
+    color: #ffffff;
+    background: linear-gradient(120deg, var(--color-accent), var(--color-accent-hover));
+    box-shadow: 0 4px 15px var(--color-accent-glow);
     transform: translateY(-2px) scale(1.05);
 }
 
-/* =========================================================
-   STAT CARDS (NEON GLASS)
-========================================================= */
 
+/* ── 4. HERO ────────────────────────────────────────────── */
+.hero {
+    position: relative;
+    padding: var(--space-lg) var(--space-md);
+    text-align: center;
+    overflow: hidden;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    background: url("images/nyc.jpg") center / cover no-repeat fixed;
+}
+
+/* Dark animated overlay */
+.hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(135deg, rgba(11, 18, 32, 0.6), rgba(11, 18, 32, 0.6));
+    z-index: 1;
+    animation: heroOverlay 20s ease-in-out infinite alternate;
+}
+
+.hero h1,
+.hero p {
+    position: relative;
+    z-index: 2;
+    text-shadow: 0 2px 15px rgba(0, 0, 0, 0.7);
+}
+
+@keyframes heroOverlay {
+    0%   { background: linear-gradient(135deg, rgba(11,18,32,0.5), rgba(11,18,32,0.5)); }
+    100% { background: linear-gradient(135deg, rgba(11,18,32,0.75), rgba(11,18,32,0.75)); }
+}
+
+
+/* ── 5. SECTION WRAPPERS ────────────────────────────────── */
+
+/* Shared layout for both section types */
+.section {
+    max-width: 1100px;
+    margin: var(--space-lg) auto;
+    padding: var(--space-lg);
+    border-radius: var(--radius-lg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+}
+
+/* Dark dashboard section */
+.section.dashboard {
+    background: var(--color-dashboard-bg);
+    color: #ffffff;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.5);
+    border: 1px solid rgba(99, 102, 241, 0.15);
+}
+
+/* Light content section */
+.section.content {
+    background: var(--color-content-bg);
+    color: var(--color-text-dark);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+}
+
+
+/* ── 6. STAT & INSIGHT CARDS ────────────────────────────── */
 .stats-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
     gap: var(--space-md);
 }
 
-.stat-card {
-    background: rgba(17,24,39,0.6);
-    border: 1px solid var(--color-border);
+/* Base card */
+.stat-card,
+.insight-card {
     border-radius: var(--radius-lg);
     padding: var(--space-lg);
     backdrop-filter: blur(10px);
-    box-shadow: 0 0 15px rgba(99,102,241,0.3);
+    -webkit-backdrop-filter: blur(10px);
     transition: all 0.4s ease;
 }
 
-.stat-card:hover {
-    transform: translateY(-8px) rotateX(3deg) rotateY(3deg) scale(1.03);
-    box-shadow: 0 10px 40px rgba(99,102,241,0.6), 0 0 30px rgba(99,102,241,0.4) inset;
+/* Dashboard (dark) cards */
+.section.dashboard .stat-card,
+.section.dashboard .insight-card {
+    background: rgba(20, 20, 20, 0.7);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-accent);
+}
+
+.section.dashboard .stat-card:hover,
+.section.dashboard .insight-card:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 10px 40px rgba(99, 102, 241, 0.6), 0 0 30px rgba(99, 102, 241, 0.3) inset;
     border-color: var(--color-accent-hover);
 }
 
+/* Content (light) cards */
+.section.content .stat-card,
+.section.content .insight-card {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--color-text-dark);
+    border: 1px solid rgba(0, 0, 0, 0.05);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.06);
+}
+
+.section.content .stat-card:hover,
+.section.content .insight-card:hover {
+    transform: translateY(-5px) scale(1.02);
+    box-shadow: 0 12px 35px rgba(0, 0, 0, 0.12);
+}
+
+/* Card Typography */
 .stat-card h3 {
     color: var(--color-text-muted);
     font-size: 12px;
-    letter-spacing: 1px;
-    margin: 0;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    margin: 0 0 var(--space-xs) 0;
 }
 
-.stat-card p {
+.section.dashboard .stat-card p,
+.section.dashboard .insight-card p {
     font-size: 32px;
     font-weight: 700;
     color: #ffffff;
-    text-shadow: 0 0 8px #6366f1, 0 0 12px #a78bfa;
+    text-shadow: 0 0 8px var(--color-accent), 0 0 14px var(--color-accent-hover);
+    margin: 0;
 }
 
-/* =========================================================
-   BUTTONS
-========================================================= */
-
-button {
-    padding: 10px 22px;
-    border-radius: 25px;
-    border: none;
-    background: linear-gradient(135deg, #6366f1, #a78bfa);
-    color: white;
-    font-weight: 600;
-    cursor: pointer;
-    box-shadow: 0 4px 15px rgba(99,102,241,0.5);
-    transition: all 0.3s ease;
+.section.content .stat-card p,
+.section.content .insight-card p {
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--color-text-dark);
+    text-shadow: none;
+    margin: 0;
 }
 
-button:hover {
-    transform: translateY(-3px) scale(1.05);
-    box-shadow: 0 8px 25px rgba(99,102,241,0.7), 0 0 15px #a78bfa inset;
-}
 
-/* =========================================================
-   INSIGHT CARDS (FROSTED NEON)
-========================================================= */
-
-.insight-card {
-    background: rgba(17,24,39,0.5);
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: var(--radius-lg);
-    padding: var(--space-lg);
-    box-shadow: 0 0 20px rgba(99,102,241,0.3);
-    backdrop-filter: blur(12px);
-    transition: all 0.4s ease;
-}
-
-.insight-card:hover {
-    transform: translateY(-5px) scale(1.02);
-    box-shadow: 0 10px 50px rgba(99,102,241,0.6), 0 0 25px rgba(163,147,255,0.4) inset;
-}
-
-/* =========================================================
-   SECTION NAV BUTTONS (NEON)
-========================================================= */
-
-.section-nav a {
-    padding: 8px 18px;
-    border-radius: 25px;
-    font-weight: 600;
-    font-size: 14px;
-    background: rgba(17,24,39,0.6);
-    color: var(--color-text-muted);
-    border: 1px solid rgba(99,102,241,0.2);
-    transition: all 0.4s ease;
-    backdrop-filter: blur(10px);
-}
-
-.section-nav a:hover {
-    background: linear-gradient(135deg, #6366f1, #a78bfa);
-    color: white;
-    box-shadow: 0 0 20px rgba(99,102,241,0.8), 0 0 10px #a78bfa inset;
-    transform: translateY(-2px) scale(1.05);
-}
-
-/* =========================================================
-   TABLE NEON GLASS
-========================================================= */
-
+/* ── 7. TABLES ──────────────────────────────────────────── */
 table {
-    background: rgba(17,24,39,0.6);
+    width: 100%;
+    border-collapse: collapse;
     border-radius: var(--radius-lg);
-    border: 1px solid rgba(99,102,241,0.2);
+    overflow: hidden;
     backdrop-filter: blur(10px);
-    box-shadow: 0 0 15px rgba(99,102,241,0.3);
 }
 
 th, td {
-    color: var(--color-text);
-    padding: 14px;
+    padding: 14px 18px;
+    text-align: left;
+}
+
+th {
+    font-size: 12px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
 }
 
 tr:hover {
-    background: rgba(99,102,241,0.1);
+    background: rgba(99, 102, 241, 0.1);
 }
+
+/* Dashboard table */
+.section.dashboard table {
+    background: rgba(20, 20, 20, 0.7);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    box-shadow: var(--shadow-accent);
+    color: #ffffff;
+}
+
+/* Content table */
+.section.content table {
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.06);
+    color: var(--color-text-dark);
+}
+
+
+/* ── 8. BUTTONS ─────────────────────────────────────────── */
+button {
+    padding: 10px 24px;
+    border-radius: var(--radius-pill);
+    border: none;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+/* Dashboard buttons — purple/indigo */
+.section.dashboard button {
+    background: linear-gradient(135deg, var(--color-accent), var(--color-accent-hover));
+    color: #ffffff;
+    box-shadow: 0 5px 20px var(--color-accent-glow);
+}
+
+.section.dashboard button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.6), 0 0 15px rgba(99, 102, 241, 0.3) inset;
+}
+
+/* Content buttons — taxi yellow */
+.section.content button {
+    background: linear-gradient(135deg, var(--color-taxi), var(--color-taxi-light));
+    color: var(--color-text-dark);
+    box-shadow: var(--shadow-taxi);
+}
+
+.section.content button:hover {
+    transform: translateY(-3px) scale(1.05);
+    box-shadow: 0 8px 25px var(--color-taxi-glow), 0 0 15px rgba(251, 191, 36, 0.2) inset;
+}
+
+
+/* ── 9. SECTION NAV PILLS ───────────────────────────────── */
+.section-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--space-sm);
+    margin-bottom: var(--space-md);
+}
+
+.section-nav a {
+    display: inline-block;
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: 14px;
+    text-decoration: none;
+    transition: all 0.4s ease;
+    backdrop-filter: blur(10px);
+}
+
+/* Dashboard nav pills */
+.section.dashboard .section-nav a {
+    background: rgba(255, 255, 255, 0.1);
+    color: #ffffff;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.section.dashboard .section-nav a:hover {
+    background: rgba(255, 255, 255, 0.2);
+    color: #ffffff;
+    transform: translateY(-2px);
+}
+
+/* Content nav pills */
+.section.content .section-nav a {
+    background: rgba(255, 255, 255, 0.95);
+    color: var(--color-text-dark);
+    border: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.section.content .section-nav a:hover {
+    background: #ffffff;
+    color: var(--color-text-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
 
