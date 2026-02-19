@@ -93,7 +93,7 @@ function renderRushHourCharts() {
     const volumeCtx = document.getElementById('volumeChart').getContext('2d');
     const barColors = hours.map(h => (peakHours.includes(h) ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)'));
     const borderColors = hours.map(h => (peakHours.includes(h) ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)'));
-    new Chart(volumeCtx, {
+    volumeChartInstance = new Chart(volumeCtx, {
         type: 'bar',
         data: {
             labels: hours,
@@ -281,37 +281,6 @@ async function loadShortTripInefficiency() {
     }
 }
 
-async function loadShortTripInefficiency() {
-    try {
-        const response = await fetch("http://127.0.0.1:5000/api/short-trip-inefficiency");
-        const data = await response.json();
-
-        const labels = data.by_category.map(item => item.inefficiency_level);
-        const tripCounts = data.by_category.map(item => item.trip_count);
-
-        const ctx = document.getElementById("inefficiencyChart").getContext("2d");
-
-        new Chart(ctx, {
-            type: "bar",
-            data: {
-                labels: labels,
-                datasets: [{
-                    label: "Trips by Inefficiency Level",
-                    data: tripCounts
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: { display: true }
-                }
-            }
-        });
-
-    } catch (error) {
-        console.error("Error loading inefficiency data:", error);
-    }
-}
 async function loadBoroughAnalysis() {
     try {
         const response = await fetch("http://127.0.0.1:5000/api/borough-comparison");
@@ -319,7 +288,7 @@ async function loadBoroughAnalysis() {
 
         const boroughs = data.map(item => item.borough);
         const totalTrips = data.map(item => item.total_trips);
-        const avgSpeed = data.map(item => item.avg_speed);
+        const avgSpeed = data.map(item => item.avg_speed_mph);
 
         renderBoroughTripsChart(boroughs, totalTrips);
         renderBoroughSpeedChart(boroughs, avgSpeed);
@@ -384,7 +353,8 @@ async function loadTipAnalysis() {
         const congestionLabels = data.by_congestion.map(item => item.congestion_level);
         const congestionTips = data.by_congestion.map(item => item.tip_pct_of_fare);
 
-        const distanceLabels = data.by_distance.map(item => item.distance_category);
+        const distanceLabels = data.by_distance.map(item => item.distance_group);
+
         const distanceTips = data.by_distance.map(item => item.tip_pct_of_fare);
 
         renderTipCongestionChart(congestionLabels, congestionTips);
