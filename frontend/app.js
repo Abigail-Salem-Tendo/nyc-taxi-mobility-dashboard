@@ -12,6 +12,7 @@ const API_BASE = "http://127.0.0.1:5000";
 async function loadStatistics() {
     const response = await fetch(`${API_BASE}/api/statistics`);
     const data = await response.json();
+    console.log("Statistics API response:", data);
 
     const container = document.getElementById("statsContainer");
     container.innerHTML = "";
@@ -41,6 +42,7 @@ async function loadPickupZones() {
     const limit = document.getElementById("pickupLimit").value;
     const response = await fetch(`${API_BASE}/api/top-pickup-zones?limit=${limit}`);
     const result = await response.json();
+    console.log("Pickup Zones API response:", result);
 
     const tbody = document.querySelector("#pickupTable tbody");
     tbody.innerHTML = "";
@@ -64,6 +66,7 @@ async function loadDropoffZones() {
     const limit = document.getElementById("dropoffLimit").value;
     const response = await fetch(`${API_BASE}/api/top-dropoff-zones?limit=${limit}`);
     const result = await response.json();
+    console.log("Dropoff Zones API response:", result);
 
     const tbody = document.querySelector("#dropoffTable tbody");
     tbody.innerHTML = "";
@@ -84,113 +87,115 @@ async function loadDropoffZones() {
 // RUSH HOUR CHARTS
 let volumeChartInstance; //  global reference for toggle
 
-function renderRushHourCharts() {
-    const hours = Array.from({length: 24}, (_, i) => i); // 0-23 hours
+// async function renderRushHourCharts() {
+//     try {
+//         const response = await fetch(`${API_BASE}/api/rush-hour-analysis`);
+//         const data = await response.json();
 
-    const peakHours = [8, 18]; // 8am and 6pm
+//         const hours = data.map(item => item.hour);
+//         const tripsByHour = data.map(item => item.trip_count);
+//         const avgSpeedByHour = data.map(item => item.avg_speed_mph);
+//         const farePerMileByHour = data.map(item => item.fare_per_mile);
 
-    // BAR CHART: Volume
-    const volumeCtx = document.getElementById('volumeChart').getContext('2d');
-    const barColors = hours.map(h => (peakHours.includes(h) ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)'));
-    const borderColors = hours.map(h => (peakHours.includes(h) ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)'));
-    volumeChartInstance = new Chart(volumeCtx, {
-        type: 'bar',
-        data: {
-            labels: hours,
-            datasets: [{
-                label: 'Trip Volume',
-                data: tripsByHour,
-                backgroundColor: barColors,
-                borderColor: borderColors,
-                borderWidth: 1
-            }]
-        },
-        options: {
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Trip Volume by Hour',
-                    font: { size: 16 }
-                },
-                legend: { display: false }
-            },
-            scales: {
-                x: { title: { display: true, text: 'Hour of Day' } },
-                y: { title: { display: true, text: 'Trips' }, beginAtZero: true }
-            }
-        }
-    });
+//         const peakHours = [8, 18];
 
-    // Efficiency Chart (Avg Speed & Fare per Mile)
-    const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
-    new Chart(efficiencyCtx, {
-        type: 'line',
-        data: {
-            labels: hours,
-            datasets: [
-                {
-                    label: 'Avg Speed (mph)',
-                    data: avgSpeedByHour,
-                    borderColor: 'rgba(75, 192, 192, 1)',
-                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
-                    yAxisID: 'ySpeed',
-                    tension: 0.3
-                },
-                {
-                    label: 'Fare per Mile ($)',
-                    data: farePerMileByHour,
-                    borderColor: 'rgba(255, 206, 86, 1)',
-                    backgroundColor: 'rgba(255, 206, 86, 0.2)',
-                    yAxisID: 'yFare',
-                    tension: 0.3
-                }
-            ]
-        },
-        options: {
-            plugins: {
-                title: {
-                    display: true,
-                    text: 'Efficiency by Hour',
-                    font: { size: 16 }
-                }
-            },
-            scales: {
-                x: { title: { display: true, text: 'Hour of Day' } },
-                ySpeed: {
-                    type: 'linear',
-                    position: 'left',
-                    title: { display: true, text: 'Avg Speed (mph)' },
-                    beginAtZero: true
-                },
-                yFare: {
-                    type: 'linear',
-                    position: 'right',
-                    title: { display: true, text: 'Fare per Mile ($)' },
-                    beginAtZero: true,
-                    grid: { drawOnChartArea: false } // prevents overlap
-                }
-            }
-        }
-    });
+//         // BAR CHART: Volume
+//         const volumeCtx = document.getElementById('volumeChart').getContext('2d');
 
-    // PEAK TOGGLE
-    const peakToggle = document.getElementById('peakToggle');
-    peakToggle.addEventListener('change', () => {
-        console.log("peak toggle clicked !")
-        // Updating bar colors based on toggle
+//         const barColors = hours.map(h =>
+//             peakHours.includes(Number(h))
+//                 ? 'rgba(255, 99, 132, 0.7)'
+//                 : 'rgba(54, 162, 235, 0.7)'
+//         );
 
-        //error below on data coz of scope. will return
-        volumeChartInstance.data.datasets[0].backgroundColor = hours.map(h => 
-            peakToggle.checked ? (peakHours.includes(h) ? 'rgba(255, 99, 132, 0.7)' : 'rgba(54, 162, 235, 0.7)') 
-                                : 'rgba(54, 162, 235, 0.7)'
-        );
-        volumeChartInstance.data.datasets[0].borderColor = hours.map(h => 
-            peakToggle.checked ? (peakHours.includes(h) ? 'rgba(255, 99, 132, 1)' : 'rgba(54, 162, 235, 1)') 
-                                : 'rgba(54, 162, 235, 1)'
-        );
-        volumeChartInstance.update();
-    });
-}
+//         const borderColors = hours.map(h =>
+//             peakHours.includes(Number(h))
+//                 ? 'rgba(255, 99, 132, 1)'
+//                 : 'rgba(54, 162, 235, 1)'
+//         );
+
+//         volumeChartInstance = new Chart(volumeCtx, {
+//             type: 'bar',
+//             data: {
+//                 labels: hours,
+//                 datasets: [{
+//                     label: 'Trip Volume',
+//                     data: tripsByHour,
+//                     backgroundColor: barColors,
+//                     borderColor: borderColors,
+//                     borderWidth: 1
+//                 }]
+//             },
+//             options: {
+//                 plugins: {
+//                     title: {
+//                         display: true,
+//                         text: 'Trip Volume by Hour'
+//                     },
+//                     legend: { display: false }
+//                 }
+//             }
+//         });
+
+//         // Efficiency Chart
+//         const efficiencyCtx = document.getElementById('efficiencyChart').getContext('2d');
+
+//         new Chart(efficiencyCtx, {
+//             type: 'line',
+//             data: {
+//                 labels: hours,
+//                 datasets: [
+//                     {
+//                         label: 'Avg Speed (mph)',
+//                         data: avgSpeedByHour,
+//                         borderColor: 'rgba(75, 192, 192, 1)',
+//                         yAxisID: 'ySpeed',
+//                         tension: 0.3
+//                     },
+//                     {
+//                         label: 'Fare per Mile ($)',
+//                         data: farePerMileByHour,
+//                         borderColor: 'rgba(255, 206, 86, 1)',
+//                         yAxisID: 'yFare',
+//                         tension: 0.3
+//                     }
+//                 ]
+//             },
+//             options: {
+//                 scales: {
+//                     ySpeed: {
+//                         type: 'linear',
+//                         position: 'left'
+//                     },
+//                     yFare: {
+//                         type: 'linear',
+//                         position: 'right',
+//                         grid: { drawOnChartArea: false }
+//                     }
+//                 }
+//             }
+//         });
+
+//         // Peak toggle
+//         const peakToggle = document.getElementById('peakToggle');
+
+//         peakToggle.addEventListener('change', () => {
+//             volumeChartInstance.data.datasets[0].backgroundColor =
+//                 hours.map(h =>
+//                     peakToggle.checked
+//                         ? (peakHours.includes(Number(h))
+//                             ? 'rgba(255, 99, 132, 0.7)'
+//                             : 'rgba(54, 162, 235, 0.7)')
+//                         : 'rgba(54, 162, 235, 0.7)'
+//                 );
+
+//             volumeChartInstance.update();
+//         });
+
+//     } catch (error) {
+//         console.error("Error loading rush hour data:", error);
+//     }
+// }
 
 
 
@@ -220,6 +225,7 @@ async function loadDistanceEconomics() {
     try {
         const response = await fetch("http://127.0.0.1:5000/api/trips-by-distance");
         const data = await response.json();
+        console.log("Trips by distance data:", data);
 
         const labels = data.map(item => item.distance_category);
         const tripCounts = data.map(item => item.trip_count);
@@ -253,6 +259,7 @@ async function loadShortTripInefficiency() {
     try {
         const response = await fetch("http://127.0.0.1:5000/api/short-trip-inefficiency");
         const data = await response.json();
+        console.log("Short trip inefficiency data:", data);
 
         const labels = data.by_category.map(item => item.inefficiency_level);
         const tripCounts = data.by_category.map(item => item.trip_count);
@@ -285,6 +292,7 @@ async function loadBoroughAnalysis() {
     try {
         const response = await fetch("http://127.0.0.1:5000/api/borough-comparison");
         const data = await response.json();
+        console.log("Borough comparison data:", data);
 
         const boroughs = data.map(item => item.borough);
         const totalTrips = data.map(item => item.total_trips);
@@ -343,13 +351,8 @@ async function loadTipAnalysis() {
     try {
         const response = await fetch("http://127.0.0.1:5000/api/tip-analysis");
         const data = await response.json();
-
-        // Assuming backend structure:
-        // {
-        //   by_congestion: [],
-        //   by_distance: []
-        // }
-
+        console.log("Tip analysis data:", data);
+       
         const congestionLabels = data.by_congestion.map(item => item.congestion_level);
         const congestionTips = data.by_congestion.map(item => item.tip_pct_of_fare);
 
@@ -415,7 +418,7 @@ function renderTipDistanceChart(labels, values) {
 // Auto-load statistics on page load
 document.addEventListener("DOMContentLoaded", () => {
     loadStatistics();
-    renderRushHourCharts();
+    //renderRushHourCharts();
     loadDistanceEconomics();
     loadShortTripInefficiency();
     loadBoroughAnalysis();
