@@ -178,9 +178,9 @@ def trips_by_distance():
     query = db.session.query(
         distance_category,
         func.count(Tripdata.trip_id).label("trip_count"),
-        func.avg(Tripdata.fare_amount).label("avg_fare"),
-        func.avg(Tripdata.trip_duration_min).label("avg_duration"),
-        func.avg(Tripdata.avg_speed_mph).label("avg_speed")
+        func.round(func.avg(Tripdata.fare_amount), 2).label("avg_fare"),
+        func.round(func.avg(Tripdata.trip_duration_min), 1).label("avg_duration"),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed")
     )
 
     # only join if borough filter is used
@@ -213,9 +213,9 @@ def short_trip_inefficiency():
     # Summary stats
     summary_query = db.session.query(
         func.count(Tripdata.trip_id).label("short_trip_count"),
-        func.avg(Tripdata.fare_amount).label("avg_fare"),
-        func.avg(Tripdata.trip_duration_min).label("avg_duration"),
-        func.avg(Tripdata.avg_speed_mph).label("avg_speed")
+        func.round(func.avg(Tripdata.fare_amount), 2).label("avg_fare"),
+        func.round(func.avg(Tripdata.trip_duration_min), 1).label("avg_duration"),
+        func.round(func.avg(Tripdata.avg_speed_mph), 2).label("avg_speed")
     ).filter(Tripdata.trip_distance < max_distance)
 
     if borough:
@@ -267,6 +267,7 @@ def short_trip_inefficiency():
         ]
     })
 
+#Borough comparison endpoint
 @app.route('/api/borough-comparison', methods=['GET'])
 def borough_comparison():
     results = db.session.query(
