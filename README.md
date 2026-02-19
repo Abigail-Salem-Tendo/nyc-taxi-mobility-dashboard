@@ -75,3 +75,8 @@ the dashboard enables analysis of
 
 
 
+#### Link to the task sheet:  
+https://docs.google.com/spreadsheets/d/1SR6UiafecmBD-tgKm2JTfJJTtf6Z6PHrfZjww6iaPk8/edit?usp=sharing
+
+#### link to the video walk through: 
+
