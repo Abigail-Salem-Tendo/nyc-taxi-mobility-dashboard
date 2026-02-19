@@ -52,6 +52,50 @@ async function loadPickupZones() {
 }
 
 
+//  DROPOFF ZONES 
+async function loadDropoffZones() {
+    const limit = document.getElementById("dropoffLimit").value;
+    const response = await fetch(`${API_BASE}/api/top-dropoff-zones?limit=${limit}`);
+    const result = await response.json();
+
+    const tbody = document.querySelector("#dropoffTable tbody");
+    tbody.innerHTML = "";
+
+    result.data.forEach(zone => {
+        const row = `
+            <tr>
+                <td>${zone.rank}</td>
+                <td>${zone.zone_name}</td>
+                <td>${zone.trip_count}</td>
+                <td>${zone.percentage}%</td>
+            </tr>
+        `;
+        tbody.innerHTML += row;
+    });
+}
+
+
+// ALGORITHM INFO 
+async function loadAlgorithmInfo() {
+    const response = await fetch(`${API_BASE}/api/algorithm-info`);
+    const result = await response.json();
+
+    const container = document.getElementById("algorithmContainer");
+    container.innerHTML = "";
+
+    result.algorithms.forEach(algo => {
+        const block = document.createElement("div");
+        block.className = "stat-card";
+        block.innerHTML = `
+            <h3>${algo.name}</h3>
+            <p><strong>Purpose:</strong> ${algo.purpose}</p>
+            <p><strong>Time Complexity:</strong> ${algo.time_complexity}</p>
+            <p><strong>Space Complexity:</strong> ${algo.space_complexity}</p>
+        `;
+        container.appendChild(block);
+    });
+}
+
 
 // Auto-load statistics on page load
 document.addEventListener("DOMContentLoaded", () => {
