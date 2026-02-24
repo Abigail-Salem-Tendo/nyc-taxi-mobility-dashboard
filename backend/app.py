@@ -607,7 +607,7 @@ def algorithm_info():
                     '1. Create empty dictionary zone_counts',
                     '2. For each zone_id in dataset:',
                     '  - if we have already seen the zone_id, add 1 to its count',
-                    '  - if we have seen it yet , add it to the dictionary and set its count to 1',
+                    '  - if we have not  seen it yet , add it to the dictionary and set its count to 1',
                     '3. Return zone_counts dictionary'
                 ],
             },
