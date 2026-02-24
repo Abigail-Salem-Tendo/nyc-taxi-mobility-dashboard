@@ -32,15 +32,22 @@ Summative assignment to demonstrate our ability to design and develop an enterpr
    * Install Dependencies
     `pip install -r requirements.txt`
 
-2. Environment Configuration
+     2. Environment Configuration
    
-    Create a .env file in the root directory and add your database credentials. This keeps your sensitive information secure.
-    ```
-   DB_HOST=localhost
-    DB_PORT=3306
-    DB_USER=your_username
-    DB_PASSWORD=your_password
-    DB_NAME=nyc_mobility_data
+         Create a .env file in the root directory and add your database credentials. This keeps your sensitive information secure.
+         ```
+        DB_HOST=localhost
+         DB_PORT=3306
+         DB_USER=your_username
+         DB_PASSWORD=your_password
+         DB_NAME=nyc_mobility_data
+   
+        ZONE_LOOKUP_FILE=path to taxi_zone_lookup.csv file
+        ZONE_SHAPEFILE=path to taxi_zones.shp
+         CLEANED_TRIP_DATA=cleaned_data.csv
+         EXCLUDED_LOG_FILE=excluded_data_log.csv
+
+        SQL_FILE=database\db_design.sql
 
    ```
 3. Run data cleaning 
